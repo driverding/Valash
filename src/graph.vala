@@ -1,9 +1,9 @@
 public class Valash.Graph : Gtk.DrawingArea {
 
-    public uint data_length { get; construct; default = 50; }
-    public Gdk.RGBA stroke_color { get; construct set; }
-    public Gdk.RGBA fill_color { get; construct set; }
-    public Gdk.RGBA background_color { get; construct set; }
+    public uint     data_length      { get; construct; default = 50; }
+    // public Gdk.RGBA stroke_color     { get; construct set; }
+    // public Gdk.RGBA fill_color       { get; construct set; }
+    // public Gdk.RGBA background_color { get; construct set; }
 
     private Gee.ArrayQueue<double?> data;
 
@@ -35,8 +35,13 @@ public class Valash.Graph : Gtk.DrawingArea {
     }
 
     private void draw_graph (Gtk.DrawingArea area, Cairo.Context cr, int width, int height) {
-        Gdk.cairo_set_source_rgba (cr, background_color);
-        cr.paint ();
+        var style_manager = Adw.StyleManager.get_default ();
+        Gdk.RGBA stroke_color = style_manager.get_accent_color_rgba ();
+        Gdk.RGBA fill_color = stroke_color.copy ();
+        fill_color.alpha = 0.4f;
+
+        // Gdk.cairo_set_source_rgba (cr, background_color);
+        // cr.paint ();
 
         double step = (double) width / (double) (data_length - 1);
         // Use 100kbps as default max value
