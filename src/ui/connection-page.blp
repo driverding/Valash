@@ -1,0 +1,31 @@
+using Gtk 4.0;
+using Adw 1;
+
+template $ValashConnectionPage : Gtk.Box {
+  Gtk.ScrolledWindow {
+    Gtk.ColumnView {
+    hexpand: true;
+
+    Gtk.ColumnViewColumn {
+      title: _("Name");
+      expand: true;
+    }
+    Gtk.ColumnViewColumn {
+      title: _("Rule");
+      expand: true;
+    }
+    Gtk.ColumnViewColumn {
+      title: _("Download Speed");
+      expand: true;
+    }
+    Gtk.ColumnViewColumn {
+      title: _("Upload Speed");
+      expand: true;
+    }
+    Gtk.ColumnViewColumn {
+      title: _("Source Address");
+      expand: true;
+    }
+  }
+  }
+}

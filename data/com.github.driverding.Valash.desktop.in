@@ -1,0 +1,10 @@
+[Desktop Entry]
+Name=valash
+Exec=valash
+Icon=com.github.driverding.Valash
+Terminal=false
+Type=Application
+Categories=Utility;
+Keywords=GTK;
+StartupNotify=true
+DBusActivatable=true

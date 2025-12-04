@@ -1,0 +1,3 @@
+[D-BUS Service]
+Name=com.github.driverding.Valash
+Exec=@bindir@/valash --gapplication-service

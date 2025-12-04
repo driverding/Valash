@@ -1,0 +1,8 @@
+# List of source files containing translatable strings.
+# Please keep this file sorted alphabetically.
+data/com.github.driverding.Valash.desktop.in
+data/com.github.driverding.Valash.metainfo.xml.in
+data/com.github.driverding.Valash.gschema.xml
+src/main.vala
+src/window.vala
+src/window.ui

@@ -1,0 +1,59 @@
+using Gtk 4.0;
+using Adw 1;
+
+template $ValashLoginWindow : Adw.ApplicationWindow {
+  title: _("Valash");
+  default-height: 620;
+  default-width: 800;
+
+  content: Adw.ToolbarView {
+    [top]
+    Adw.HeaderBar header_bar {}
+
+    content: Adw.ToastOverlay overlay {
+      Adw.StatusPage {
+        title: _("Welcome");
+        description: _("Connect to the Clash Kernel to Start");
+
+        Adw.Clamp {
+          maximum-size: 340;
+
+          Gtk.Box {
+            orientation: vertical;
+            spacing: 18;
+
+            Gtk.ListBox {
+              selection-mode: none;
+              margin-bottom: 18;
+
+              styles [
+                "boxed-list",
+              ]
+
+              Adw.EntryRow addressEntry {
+                title: _("Address");
+                halign: fill;
+              }
+
+              Adw.PasswordEntryRow passwordEntry {
+                title: _("Secret");
+                halign: fill;
+              }
+            }
+
+            Gtk.Button connectButton {
+              label: _("Connect");
+              halign: center;
+              clicked => $on_connect_button_clicked();
+
+              styles [
+                "suggested-action",
+                "pill",
+              ]
+            }
+          }
+        }
+      }
+    };
+  };
+}

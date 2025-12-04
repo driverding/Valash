@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gresources>
+  <gresource prefix="/com/github/driverding/Valash">
+    <file>ui/style.css</file>
+    <file preprocess="xml-stripblanks">ui/overview-page.ui</file>
+    <file preprocess="xml-stripblanks">ui/proxies-page.ui</file>
+    <file preprocess="xml-stripblanks">ui/connection-page.ui</file>
+    <file preprocess="xml-stripblanks">ui/login-window.ui</file>
+    <file preprocess="xml-stripblanks">ui/main-window.ui</file>
+  </gresource>
+</gresources>

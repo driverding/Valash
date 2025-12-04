@@ -1,0 +1,278 @@
+using Gtk 4.0;
+using Adw 1;
+
+template $ValashOverviewPage : Gtk.Box {
+
+  Gtk.ScrolledWindow {
+
+    Adw.Clamp {
+      maximum-size: 600;
+      margin-start: 16;
+      margin-end: 16;
+      margin-bottom: 16;
+
+
+      Gtk.Box {
+        orientation: vertical;
+        spacing: 16;
+
+        Adw.PreferencesGroup {
+          title: _("Monitor");
+
+          Adw.PreferencesRow {
+            hexpand: true;
+            overflow: hidden;
+            activatable: false;
+
+            [suffix]
+            Gtk.Box {
+              orientation: horizontal;
+              hexpand: true;
+              homogeneous: true;
+              margin-start: 12;
+              margin-top: 12;
+              margin-end: 12;
+              margin-bottom: 6;
+              spacing: 12;
+
+              Gtk.Box {
+                orientation: vertical;
+                hexpand: true;
+
+                spacing: 4;
+
+                Gtk.Frame {
+                  hexpand: true;
+                  height-request: 160;
+                  margin-bottom: 8;
+                  styles ["graph"]
+
+                  $ValashGraph download_graph {
+                    hexpand: true;
+                    vexpand: true;
+
+                    data_length: 50;
+                    stroke_color: "rgba(32, 32, 128, 1.0)";
+                    fill_color: "rgba(32, 32, 128, 0.6)";
+                    background_color: "rgba(0, 0, 0, 0.0)";
+                  }
+                }
+
+                Gtk.Label {
+                  label: _("Download Speed");
+                  hexpand: true;
+                  halign: start;
+                  ellipsize: middle;
+
+                  styles ["subtitle"]
+                }
+
+                Gtk.Label download_speed_label {
+                  hexpand: true;
+                  halign: start;
+                  ellipsize: middle;
+                  selectable: true;
+                }
+              }
+
+              Gtk.Box {
+                orientation: vertical;
+                hexpand: true;
+                spacing: 4;
+
+                Gtk.Frame {
+                  hexpand: true;
+                  height-request: 160;
+                  margin-bottom: 8;
+                  styles ["graph"]
+
+                  $ValashGraph upload_graph {
+                    hexpand: true;
+                    content-height: 160;
+
+                    data_length: 50;
+                    stroke_color: "rgba(32, 32, 128, 1.0)";
+                    fill_color: "rgba(32, 32, 128, 0.6)";
+                    background_color: "rgba(0, 0, 0, 0.0)";
+                  }
+                }
+
+
+                Gtk.Label {
+                  label: _("Upload Speed");
+                  hexpand: true;
+                  halign: start;
+                  ellipsize: middle;
+
+                  styles ["subtitle"]
+                }
+
+                Gtk.Label upload_speed_label {
+                  hexpand: true;
+                  halign: start;
+                  ellipsize: middle;
+                  selectable: true;
+                }
+              }
+            }
+          }
+
+          Adw.PreferencesRow {
+            hexpand: true;
+            overflow: hidden;
+            activatable: false;
+
+            [suffix]
+            Gtk.Box {
+              orientation: horizontal;
+              hexpand: true;
+              homogeneous: true;
+              margin-start: 12;
+              margin-top: 6;
+              margin-end: 12;
+              margin-bottom: 6;
+              spacing: 12;
+
+              Gtk.Box {
+                orientation: vertical;
+                hexpand: true;
+                spacing: 4;
+
+
+                Gtk.Label {
+                  label: _("Total Downloads");
+                  hexpand: true;
+                  halign: start;
+                  ellipsize: middle;
+
+                  styles ["subtitle"]
+                }
+
+                Gtk.Label total_downloads_label {
+                  hexpand: true;
+                  halign: start;
+                  ellipsize: middle;
+                  selectable: true;
+                }
+              }
+
+              Gtk.Box {
+                orientation: vertical;
+                hexpand: true;
+                spacing: 4;
+
+
+                Gtk.Label {
+                  label: _("Total Uploads");
+                  hexpand: true;
+                  halign: start;
+                  ellipsize: middle;
+
+                  styles ["subtitle"]
+                }
+
+                Gtk.Label total_uploads_label {
+                  hexpand: true;
+                  halign: start;
+                  ellipsize: middle;
+                  selectable: true;
+                }
+              }
+            }
+          }
+
+          Adw.PreferencesRow {
+            hexpand: true;
+            overflow: hidden;
+            activatable: false;
+            width-request: 160;
+
+            [suffix]
+            Gtk.Box {
+              orientation: horizontal;
+              hexpand: true;
+              homogeneous: true;
+              margin-start: 12;
+              margin-top: 6;
+              margin-end: 12;
+              margin-bottom: 6;
+              spacing: 12;
+
+              Gtk.Box {
+                orientation: vertical;
+                hexpand: true;
+                spacing: 4;
+
+
+                Gtk.Label {
+                  label: _("Connections Count");
+                  hexpand: true;
+                  halign: start;
+                  ellipsize: middle;
+
+                  styles ["subtitle"]
+                }
+
+                Gtk.Label connections_count_label {
+                  hexpand: true;
+                  halign: start;
+                  ellipsize: middle;
+                  selectable: true;
+                }
+              }
+
+              Gtk.Box {
+                orientation: vertical;
+                hexpand: true;
+                spacing: 4;
+
+
+                Gtk.Label {
+                  label: _("Memory Usage");
+                  hexpand: true;
+                  halign: start;
+                  ellipsize: middle;
+
+                  styles ["subtitle"]
+                }
+
+                Gtk.Label memory_usage_label {
+                  hexpand: true;
+                  halign: start;
+                  ellipsize: middle;
+                  selectable: true;
+                }
+              }
+            }
+          }
+        }
+
+        Adw.PreferencesGroup {
+          title: _("Settings");
+
+          Adw.SwitchRow {
+            title: _("Enable TUN Mode");
+            subtitle: _("Emulate a virtual network interface");
+          }
+        }
+
+        Gtk.Box {
+          orientation: horizontal;
+          spacing: 12;
+
+          Gtk.Button {
+            label: _("Reload Config");
+            hexpand: true;
+            clicked => $on_reload_config_button_clicked();
+          }
+
+          Gtk.Button {
+            label: _("Restart Kernel");
+            hexpand: true;
+            clicked => $on_restart_button_clicked();
+          }
+        }
+      }
+    }
+  }
+}
