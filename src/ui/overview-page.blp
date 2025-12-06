@@ -253,6 +253,7 @@ template $ValashOverviewPage : Gtk.Box {
           Adw.SwitchRow {
             title: _("Enable TUN Mode");
             subtitle: _("Emulate a virtual network interface");
+            notify::active => $on_tun_switch_active_changed();
           }
         }
 

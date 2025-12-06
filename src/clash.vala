@@ -56,21 +56,6 @@ public class Valash.ConnectionData : GLib.Object, Json.Serializable {
     public override unowned ParamSpec? find_property (string name) {
         return get_class ().find_property (camel_to_snake (name));
     }
-
-    // public override bool deserialize_property (
-    //     string property_name,
-    //     out Value value,
-    //     ParamSpec pspec,
-    //     Json.Node property_node
-    // ) {
-    //     if (property_name == "metadata") {
-    //         value = Value (typeof (ConnectionMetadata));
-    //         ConnectionMetadata result = (ConnectionMetadata) Json.gobject_deserialize (typeof (ConnectionMetadata), property_node);
-    //         value.set_object (result);
-    //         return true;
-    //     }
-    //     return default_deserialize_property (property_name, out value, pspec, property_node);
-    // }
 }
 
 public class Valash.ConnectionsData : GLib.Object, Json.Serializable {
@@ -266,5 +251,32 @@ public class Valash.Clash : Object {
     }
 
     // Proxies Providers
+    // public async Gee.HashMap
+
+    // Configs
+    public async bool configure_tun (bool setting, GLib.Cancellable? cancellable) {
+        string body = @"{\"tun\": {\"enable\": $setting}}";
+        Soup.Message message = new Soup.Message ("PATCH", this.url + "/configs");
+        message.request_headers.set_content_type ("application/json", null);
+        message.set_request_body_from_bytes ("application/json", new GLib.Bytes (body.data));
+        try {
+            yield session.send_async (message, Priority.DEFAULT, cancellable);
+            return 200 <= message.status_code < 300;
+        } catch (Error e) {
+            GLib.warning (e.message);
+            return false;
+        }
+    }
+
+    public void send_restart () {
+        Soup.Message message = new Soup.Message ("POST", this.url + "/restart");
+        session.send_async.begin (message, Priority.DEFAULT, null);
+    }
+
+    public void send_reload () {
+        Soup.Message message = new Soup.Message ("POST", this.url + "/upgrade");
+        session.send_async.begin (message, Priority.DEFAULT, null);
+    }
+
 
 }

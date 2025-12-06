@@ -66,16 +66,33 @@ class Valash.OverviewPage : Gtk.Box {
         connections_count_label.label = "%u".printf(data.connections.size);
     }
 
+    private bool tun_switch_lock = false;
+    [GtkCallback]
+    private void on_tun_switch_active_changed (GLib.Object sender, GLib.ParamSpec pspec) {
+        Adw.SwitchRow source = (Adw.SwitchRow) sender;
+        if (tun_switch_lock == true) return;
+        tun_switch_lock = true;
+        source.sensitive = false;
+        configure_tun.begin (source, source.active);
+    }
+
+    private async void configure_tun (Adw.SwitchRow source, bool settings) {
+        bool success = yield instance.configure_tun (settings, null);
+        if (!success) {
+            source.active = !source.active;
+        }
+        source.sensitive = true;
+        tun_switch_lock = false;
+    }
+
     [GtkCallback]
     private void on_reload_config_button_clicked (Gtk.Button source) {
-        // Soup.Message reload_config_msg = new Soup.Message ("POST", TEMP_URL + "/upgrade");
-        // session.send_async.begin (reload_config_msg, Priority.DEFAULT, null);
+        instance.send_reload ();
     }
 
     [GtkCallback]
     private void on_restart_button_clicked (Gtk.Button source) {
-        // Soup.Message restart_msg = new Soup.Message ("POST", TEMP_URL + "/restart");
-        // session.send_async.begin (restart_msg, Priority.DEFAULT, null);
+        instance.send_restart ();
     }
 }
 
