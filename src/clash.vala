@@ -59,7 +59,7 @@ public class Valash.ConnectionData : GLib.Object, Json.Serializable {
 }
 
 public class Valash.ConnectionsData : GLib.Object, Json.Serializable {
-    public Gee.ArrayList<ConnectionData> connections { get; set; }
+    public Gee.HashMap<string, ConnectionData> connections { get; set; } // TODO: Convert to HashTable Perhaps
     public double download_total { get; set; }
     public double upload_total   { get; set; }
     public double memory         { get; set; }
@@ -75,14 +75,14 @@ public class Valash.ConnectionsData : GLib.Object, Json.Serializable {
         Json.Node property_node
     ) {
         if (property_name == "connections") {
-            value = Value (typeof (Gee.ArrayList));
+            value = Value (typeof (Gee.HashMap));
             Json.Array arr = property_node.get_array ();
-            Gee.ArrayList<ConnectionData> result = new Gee.ArrayList<ConnectionData> ();
+            Gee.HashMap<string, ConnectionData> result = new Gee.HashMap<string, ConnectionData> ();
 
             for (int i = 0; i < arr.get_length (); i += 1) {
                 Json.Node node = arr.get_element (i);
                 ConnectionData data = (ConnectionData) Json.gobject_deserialize (typeof (ConnectionData), node);
-                result.add (data);
+                result.set (data.id, data);
             }
             value.set_object (result);
             return true;

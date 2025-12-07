@@ -26,6 +26,7 @@ public class Valash.MainWindow : Adw.ApplicationWindow {
         this.connections_cancellable = new GLib.Cancellable ();
 
         connections_received.connect (overview_page.on_connections_received);
+        connections_received.connect (connection_page.on_connections_received);
         GLib.Timeout.add (1000, () => {
             request_connections.begin ();
             return true;

@@ -9,6 +9,18 @@ template $ValashProxiesPage : Gtk.Box {
       margin-end: 16;
       margin-bottom: 16;
 
+      Gtk.Box {
+        orientation: vertical;
+        spacing: 16;
+
+        Adw.PreferencesGroup proxies_group {
+          title: _("Proxies");
+        }
+
+        Adw.PreferencesGroup proxy_providers_group {
+          title: _("Proxy Providers");
+        }
+      }
     }
   }
 }
