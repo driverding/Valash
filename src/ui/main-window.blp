@@ -26,6 +26,7 @@ template $ValashMainWindow : Adw.ApplicationWindow {
     }
 
     Adw.ViewStack stack {
+      notify::visible-child => $on_stack_notify_visible_child ();
       Adw.ViewStackPage {
         title: _("Overview");
         icon-name: "network-wireless-hotspot-symbolic";

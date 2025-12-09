@@ -24,7 +24,6 @@ class Valash.OverviewPage : Gtk.Box {
     }
 
     construct {
-        var app = (Valash.Application) GLib.Application.get_default ();
         this.instance = Clash.get_instance ();
 
         start_connections ();
@@ -68,7 +67,7 @@ class Valash.OverviewPage : Gtk.Box {
 
     private bool tun_switch_lock = false;
     [GtkCallback]
-    private void on_tun_switch_active_changed (GLib.Object sender, GLib.ParamSpec pspec) {
+    private void on_tun_switch_notify_active (GLib.Object sender, GLib.ParamSpec pspec) {
         Adw.SwitchRow source = (Adw.SwitchRow) sender;
         if (tun_switch_lock == true) return;
         tun_switch_lock = true;

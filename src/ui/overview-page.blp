@@ -253,7 +253,7 @@ template $ValashOverviewPage : Gtk.Box {
           Adw.SwitchRow {
             title: _("Enable TUN Mode");
             subtitle: _("Emulate a virtual network interface");
-            notify::active => $on_tun_switch_active_changed();
+            notify::active => $on_tun_switch_notify_active ();
           }
         }
 
@@ -264,13 +264,13 @@ template $ValashOverviewPage : Gtk.Box {
           Gtk.Button {
             label: _("Reload Config");
             hexpand: true;
-            clicked => $on_reload_config_button_clicked();
+            clicked => $on_reload_config_button_clicked ();
           }
 
           Gtk.Button {
             label: _("Restart Kernel");
             hexpand: true;
-            clicked => $on_restart_button_clicked();
+            clicked => $on_restart_button_clicked ();
           }
         }
       }

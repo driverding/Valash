@@ -4,4 +4,6 @@ blueprints = files(
 
 	'overview-page.blp',
 	'proxies-page.blp',
+
+	'proxy-provider-row.blp',
 )

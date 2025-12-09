@@ -1,6 +1,8 @@
 [GtkTemplate (ui = "/com/github/driverding/Valash/ui/main-window.ui")]
 public class Valash.MainWindow : Adw.ApplicationWindow {
     [GtkChild]
+    private unowned Adw.ViewStack stack;
+    [GtkChild]
     private unowned Valash.OverviewPage overview_page;
     [GtkChild]
     private unowned Valash.ProxiesPage proxies_page;
@@ -38,16 +40,12 @@ public class Valash.MainWindow : Adw.ApplicationWindow {
         connections_received (response);
     }
 
-    // private async void send_connections_message () {
-    //     Soup.Message connections_msg = new Soup.Message ("GET", TEMP_URL + "/connections");
-    //     try {
-    //         var response = yield session.send_and_read_async (connections_msg, Priority.DEFAULT, connections_cancellable);
-    //         string data = (string) response.get_data ();
-    //         Json.Object root = Json.from_string (data).get_object ();
-    //         connections_received (root);
-    //     } catch (Error e) {
-    //         stderr.printf (e.message);
-    //     }
-    // }
+    [GtkCallback]
+    private void on_stack_notify_visible_child (GLib.Object sender, GLib.ParamSpec pspec) {
+        if (stack.visible_child == proxies_page) {
+            stderr.printf ("Matched");
+            proxies_page.refresh ();
+        }
+    }
 }
 

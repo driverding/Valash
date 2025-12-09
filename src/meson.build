@@ -10,7 +10,7 @@ valash_sources = [
   'overview-page.vala',
   'proxies-page.vala',
   'connection-page.vala',
-
+	'proxy-provider-row.vala',
   'graph.vala',
   'clash.vala',
   'utils.vala',

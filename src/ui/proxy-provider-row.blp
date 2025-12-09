@@ -1,0 +1,45 @@
+using Gtk 4.0;
+using Adw 1;
+
+template $ValashProxyProviderRow : Adw.PreferencesRow {
+  Gtk.Box {
+    orientation: vertical;
+    hexpand: true;
+    margin-start: 12;
+    margin-end: 12;
+    margin-top: 6;
+    margin-bottom: 6;
+
+    Gtk.Box {
+      orientation: horizontal;
+
+      Gtk.Box {
+        width-request: 240;
+        Gtk.Label title_label {
+          // label: "";
+        }
+      }
+      Gtk.ProgressBar usage_progress_bar {
+        hexpand: true;
+        valign: center;
+      }
+    }
+
+    Gtk.Box {
+      orientation: horizontal;
+      hexpand: true;
+      margin-top: 3;
+      Gtk.Label left_subtitle_label {
+        // label: "HTTP - 7个代理 - 更新于12月8日";
+        halign: start;
+        styles ["subtitle"]
+      }
+      Gtk.Label right_subtitle_label {
+        // label: "于2026年9月28日过期 - 120 GB / 130 GB";
+        halign: end;
+        hexpand: true;
+        styles ["subtitle"]
+      }
+    }
+  }
+}

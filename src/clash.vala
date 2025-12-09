@@ -97,7 +97,7 @@ public class Valash.ProxyData : GLib.Object, Json.Serializable {
     public string[]     history          { get; set; }
     public bool         alive            { get; set; }
     public string       dialer_proxy     { get; set; }
-    public Json.Object  extra            { get; set; }
+    // public Json.Object  extra            { get; set; } // TODO: This does not work, rewrite it in the future
     public bool         hidden           { get; set; }
     public string       icon             { get; set; }
     public string       proxy_interface  { get; set; }
@@ -119,7 +119,80 @@ public class Valash.ProxyData : GLib.Object, Json.Serializable {
     }
 }
 
+public class Valash.SubscriptionInfo : GLib.Object, Json.Serializable {
+    public double upload        { get; set; }
+    public double download      { get; set; }
+    public double total         { get; set; }
+    public GLib.DateTime? expire { get; set; }
 
+    public override unowned ParamSpec? find_property (string name) {
+        return get_class ().find_property (name.down ());
+    }
+
+    public override bool deserialize_property (
+        string property_name,
+        out Value value,
+        ParamSpec pspec,
+        Json.Node property_node
+    ) {
+        if (property_name == "expire") {
+            int64 unix_time = property_node.get_int ();
+            if (unix_time == 0)
+                return false;
+            value = Value (typeof (GLib.DateTime));
+            GLib.DateTime result = new GLib.DateTime.from_unix_utc (unix_time);
+            value.set_boxed (result);
+            return true;
+        }
+        return default_deserialize_property (property_name, out value, pspec, property_node);
+    }
+}
+
+public class Valash.ProxyProviderData : GLib.Object, Json.Serializable {
+    public SubscriptionInfo? subscription_info { get; set; }
+    public Gee.ArrayList<ProxyData> proxies    { get; set; }
+    public string name              { get; set; }
+    public string provider_type     { get; set; }
+    public string vehicle_type      { get; set; }
+    public string test_url          { get; set; }
+    public string expected_status   { get; set; }
+    public GLib.DateTime updated_at { get; set; }
+
+    public override unowned ParamSpec? find_property (string name) {
+        if (name == "type") return get_class ().find_property ("proxy_type");
+        return get_class ().find_property (camel_to_snake (name));
+    }
+
+    public override bool deserialize_property (
+        string property_name,
+        out Value value,
+        ParamSpec pspec,
+        Json.Node property_node
+    ) {
+        stderr.printf ("Name: %s\n", property_name);
+        if (property_name == "proxies") {
+            value = Value (typeof (Gee.ArrayList));
+            Gee.ArrayList<ProxyData> result = new Gee.ArrayList<ProxyData> ();
+            Json.Array arr = property_node.get_array ();
+
+            for (int i = 0; i < arr.get_length (); i += 1) {
+                Json.Node node = arr.get_element (i);
+                ProxyData data = (ProxyData) Json.gobject_deserialize (typeof (ProxyData), node);
+                result.add (data);
+            }
+            value.set_object (result);
+            return true;
+        } else if (property_name == "updated-at") {
+            value = Value (typeof (GLib.DateTime));
+            stderr.printf ("Deserializing updated_at: %s", property_node.get_string ());
+            GLib.DateTime result = new GLib.DateTime.from_iso8601 (property_node.get_string (), new GLib.TimeZone.local ());
+            value.set_boxed (result);
+            return true;
+        }
+        stderr.printf ("Going to Default");
+        return default_deserialize_property (property_name, out value, pspec, property_node);
+    }
+}
 
 /* --- CLASH INTERFACE --- */
 
@@ -251,7 +324,22 @@ public class Valash.Clash : Object {
     }
 
     // Proxies Providers
-    // public async Gee.HashMap
+    public async Gee.HashMap<string, ProxyProviderData>? request_proxy_providers (GLib.Cancellable? cancellable) {
+        Gee.HashMap<string, ProxyProviderData> result = new Gee.HashMap<string, ProxyProviderData> ();
+        Soup.Message message = new Soup.Message ("GET", this.url + "/providers/proxies");
+        try {
+            GLib.Bytes response = yield session.send_and_read_async (message, Priority.DEFAULT, cancellable);
+            Json.Object providers_obj = Json.from_string ((string) response.get_data ()).get_object ().get_object_member ("providers");
+            providers_obj.foreach_member ((obj, name, node) => {
+                result.set (name, (ProxyProviderData) Json.gobject_deserialize (typeof (ProxyProviderData), node));
+            });
+            return result;
+
+        } catch (Error e) {
+            GLib.warning (e.message);
+            return null;
+        }
+    }
 
     // Configs
     public async bool configure_tun (bool setting, GLib.Cancellable? cancellable) {

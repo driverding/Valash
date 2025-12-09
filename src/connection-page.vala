@@ -41,6 +41,7 @@ class Valash.ConnectionPage : Gtk.Box {
         factory.setup.connect ((item) => {
             var list_item = (Gtk.ListItem) item;
             var inscription = new Gtk.Inscription (null);
+            inscription.add_css_class ("inscription");
             list_item.set_child (inscription);
         });
         factory.bind.connect ((factory, item) => {
@@ -59,6 +60,10 @@ class Valash.ConnectionPage : Gtk.Box {
     }
 
     public void on_connections_received (ConnectionsData data) {
+        refresh_list_store (data);
+    }
+
+    private void refresh_list_store (ConnectionsData data) {
         // Mark All Connections
         Gee.HashSet<string> to_append = new Gee.HashSet<string> ();
         foreach (string id in data.connections.keys) {
