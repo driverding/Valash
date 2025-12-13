@@ -8,6 +8,10 @@ class Valash.ProxiesPage : Gtk.Box {
     private Clash instance;
 
 
+
+    private Gee.HashMap<string, ProxyData> proxies;
+    private Gee.HashMap<string, ProxyProviderData> providers;
+
     public ProxiesPage () {
         Object ();
     }
@@ -16,24 +20,53 @@ class Valash.ProxiesPage : Gtk.Box {
         this.instance = Clash.get_instance ();
     }
 
-    public void refresh () {
-        // Remove all objects
-        while (proxy_providers_group.get_row (0) != null) {
-            proxy_providers_group.remove (proxy_providers_group.get_row (0));
-        }
+
+    /* Database */
+
+    public async void healthcheck (string provider) {
+        yield instance.request_proxy_providers_healthcheck (provider, null);
+        update.begin ();
+    }
+
+    // This function does not update ui. The caller (the proxy widget) should update the ui.
+    public async double update_delay_individual (string proxy) {
+        double delay = yield instance.request_proxy_delay (proxy, null);
+        HealthHistory history = new HealthHistory () { delay = delay, time = new GLib.DateTime.now_local () };
+        proxies.get (proxy).history.add (history);
+        return delay;
+    }
+
+    public async void update_group_delay (string group) {
+
+        // Use a better way of handling instead of reconstruct UI
+    }
+
+    public async void update () { // having "all" means selectable
+        proxies = yield instance.request_proxies (null);
+        providers = yield instance.request_proxy_providers (null);
+        update_ui ();
+    }
+
+
+    /* Graphics */
+
+    public void update_ui () {
+        update_proxies_group ();
+        update_proxy_providers_group ();
+    }
+
+    private void update_proxies_group () { // Rewrite it in database
         while (proxies_group.get_row (0) != null) {
             proxies_group.remove (proxies_group.get_row (0));
         }
-        refresh_proxies_group.begin ();
-        refresh_proxy_providers_group.begin ();
+
     }
 
-    private async void refresh_proxies_group () {
-        Gee.HashMap<string, ProxyData> proxies = yield instance.request_proxies (null);
-    }
+    private void update_proxy_providers_group () {  // Rewrite it in database
+        while (proxy_providers_group.get_row (0) != null) {
+            proxy_providers_group.remove (proxy_providers_group.get_row (0));
+        }
 
-    private async void refresh_proxy_providers_group () {
-        Gee.HashMap<string, ProxyProviderData> providers = yield instance.request_proxy_providers (null);
         foreach (var provider in providers.values) {
             switch (provider.vehicle_type) {
                 case "Compatible":
@@ -41,7 +74,6 @@ class Valash.ProxiesPage : Gtk.Box {
                 case "HTTP":
                     proxy_providers_group.add (new ProxyProviderRow.from_data (provider));
                     break;
-                // TODO: Implement More
             }
         }
     }

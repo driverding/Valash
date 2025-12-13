@@ -92,9 +92,30 @@ public class Valash.ConnectionsData : GLib.Object, Json.Serializable {
     }
 }
 
+
+public class Valash.HealthHistory : GLib.Object, Json.Serializable {
+    public GLib.DateTime time { get; set; }
+    public double delay       { get; set; } // Delay == 0 represents infinite delay
+
+    public override bool deserialize_property (
+        string property_name,
+        out Value value,
+        ParamSpec pspec,
+        Json.Node property_node
+    ) {
+        if (property_name == "time") {
+            value = Value (typeof (GLib.DateTime));
+            GLib.DateTime result = new GLib.DateTime.from_iso8601 (property_node.get_string (), new GLib.TimeZone.local ());
+            value.set_boxed (result);
+            return true;
+        }
+        return default_deserialize_property (property_name, out value, pspec, property_node);
+    }
+}
+
 public class Valash.ProxyData : GLib.Object, Json.Serializable {
     public string[]     all              { get; set; }
-    public string[]     history          { get; set; }
+    public Gee.ArrayList<HealthHistory> history { get; set; } // TODO: This will be the healthcheck result?
     public bool         alive            { get; set; }
     public string       dialer_proxy     { get; set; }
     // public Json.Object  extra            { get; set; } // TODO: This does not work, rewrite it in the future
@@ -116,6 +137,28 @@ public class Valash.ProxyData : GLib.Object, Json.Serializable {
     public override unowned ParamSpec? find_property (string name) {
         if (name == "type") return get_class ().find_property ("proxy_type");
         return get_class ().find_property (camel_to_snake (name));
+    }
+
+    public override bool deserialize_property (
+        string property_name,
+        out Value value,
+        ParamSpec pspec,
+        Json.Node property_node
+    ) {
+        if (property_name == "history") {
+            value = Value (typeof (Gee.ArrayList));
+            Gee.ArrayList<HealthHistory> result = new Gee.ArrayList<HealthHistory> ();
+            Json.Array arr = property_node.get_array ();
+
+            for (int i = 0; i < arr.get_length (); i += 1) {
+                Json.Node node = arr.get_element (i);
+                HealthHistory data = (HealthHistory) Json.gobject_deserialize (typeof (HealthHistory), node);
+                result.add (data);
+            }
+            value.set_object (result);
+            return true;
+        }
+        return default_deserialize_property (property_name, out value, pspec, property_node);
     }
 }
 
@@ -169,7 +212,6 @@ public class Valash.ProxyProviderData : GLib.Object, Json.Serializable {
         ParamSpec pspec,
         Json.Node property_node
     ) {
-        stderr.printf ("Name: %s\n", property_name);
         if (property_name == "proxies") {
             value = Value (typeof (Gee.ArrayList));
             Gee.ArrayList<ProxyData> result = new Gee.ArrayList<ProxyData> ();
@@ -184,12 +226,10 @@ public class Valash.ProxyProviderData : GLib.Object, Json.Serializable {
             return true;
         } else if (property_name == "updated-at") {
             value = Value (typeof (GLib.DateTime));
-            stderr.printf ("Deserializing updated_at: %s", property_node.get_string ());
             GLib.DateTime result = new GLib.DateTime.from_iso8601 (property_node.get_string (), new GLib.TimeZone.local ());
             value.set_boxed (result);
             return true;
         }
-        stderr.printf ("Going to Default");
         return default_deserialize_property (property_name, out value, pspec, property_node);
     }
 }
@@ -200,15 +240,19 @@ public class Valash.Clash : Object {
     private static Clash? instance;
 
     private Soup.Session session;
-    public string url { set; get; }
+    public string url       { set; get; }
+    public string delay_url { set; get; }
+    public int timeout      { set; get; }
 
-    private Clash (string url) {
+    private Clash (string url, string delay_url, int timeout) {
         session = new Soup.Session.with_options ("max_conns", 10, "max_conns_per_host", 10);
         this.url = url;
+        this.delay_url = delay_url;
+        this.timeout = timeout;
     }
 
-    public static Clash reinit_instance (string url) {
-        instance = new Clash (url);
+    public static Clash reinit_instance (string url, string delay_url, int timeout) {
+        instance = new Clash (url, delay_url, timeout);
         return instance;
     }
 
@@ -323,6 +367,18 @@ public class Valash.Clash : Object {
         }
     }
 
+    // Proxy Delay
+    public async double request_proxy_delay (string proxy, GLib.Cancellable? cancellable) {
+        Soup.Message message = new Soup.Message ("GET", this.url + "/proxies/${proxy}/delay?url=${this.delay_url}&timeout=${this.timeout}");
+        try {
+            GLib.Bytes response = yield session.send_and_read_async (message, Priority.DEFAULT, cancellable);
+            return Json.from_string ((string) response.get_data ()).get_object ().get_double_member ("delay");
+        } catch (Error e) {
+            GLib.warning (e.message);
+            return 0;
+        }
+    }
+
     // Proxies Providers
     public async Gee.HashMap<string, ProxyProviderData>? request_proxy_providers (GLib.Cancellable? cancellable) {
         Gee.HashMap<string, ProxyProviderData> result = new Gee.HashMap<string, ProxyProviderData> ();
@@ -338,6 +394,16 @@ public class Valash.Clash : Object {
         } catch (Error e) {
             GLib.warning (e.message);
             return null;
+        }
+    }
+
+    // Health Check
+    public async void request_proxy_providers_healthcheck (string provider, GLib.Cancellable? cancellable) {
+        Soup.Message message = new Soup.Message ("GET", this.url + "/providers/proxies/${provider}/healthcheck");
+        try {
+            yield session.send_async (message, Priority.DEFAULT, cancellable);
+        } catch (Error e) {
+            GLib.warning (e.message);
         }
     }
 

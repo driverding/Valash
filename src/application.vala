@@ -1,4 +1,6 @@
 const string TEMP_URL = "http://127.0.0.1:9090";
+const string TEMP_TEST_URL = "https://www.gstatic.com/generate_204";
+const int TEMP_TIME_OUT = 1000;
 
 public class Valash.Application : Adw.Application {
 
@@ -21,7 +23,7 @@ public class Valash.Application : Adw.Application {
     }
 
     public override void activate () {
-        Clash.reinit_instance (TEMP_URL);
+        Clash.reinit_instance (TEMP_URL, TEMP_TEST_URL, TEMP_TIME_OUT);
 
         base.activate ();
         var win = this.active_window ?? new Valash.MainWindow (this);

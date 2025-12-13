@@ -11,3 +11,9 @@
 6. Connection page
 7. Auto Reconnect
 8. Learn How to handle HTTP ERROR
+
+## Structure Design
+
+```mermaid
+
+```

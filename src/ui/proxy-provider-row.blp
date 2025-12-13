@@ -1,45 +1,40 @@
 using Gtk 4.0;
 using Adw 1;
 
-template $ValashProxyProviderRow : Adw.PreferencesRow {
+template $ValashProxyProviderRow : Adw.ExpanderRow {
+  [suffix]
   Gtk.Box {
     orientation: vertical;
-    hexpand: true;
-    margin-start: 12;
-    margin-end: 12;
-    margin-top: 6;
-    margin-bottom: 6;
-
-    Gtk.Box {
-      orientation: horizontal;
-
-      Gtk.Box {
-        width-request: 240;
-        Gtk.Label title_label {
-          // label: "";
-        }
-      }
-      Gtk.ProgressBar usage_progress_bar {
-        hexpand: true;
-        valign: center;
-      }
+    width-request: 260;
+    margin-end: 6;
+    Gtk.ProgressBar usage_progress_bar {
+      margin-top: 11;
+      margin-bottom: 7;
     }
 
+    Gtk.Label right_label {
+      halign: end;
+      styles ["subtitle"]
+    }
+  }
+
+  Gtk.Box {
+    orientation: vertical;
+    margin-start: 12;
+    margin-top: 12;
+    margin-end: 12;
+    margin-bottom: 12;
     Gtk.Box {
       orientation: horizontal;
-      hexpand: true;
-      margin-top: 3;
-      Gtk.Label left_subtitle_label {
-        // label: "HTTP - 7个代理 - 更新于12月8日";
-        halign: start;
-        styles ["subtitle"]
+      homogeneous: true;
+      spacing: 12;
+      Gtk.Button health_check_button {
+        label: _("Health Check and Update");
+        clicked => $on_health_check_button_clicked ();
       }
-      Gtk.Label right_subtitle_label {
-        // label: "于2026年9月28日过期 - 120 GB / 130 GB";
-        halign: end;
-        hexpand: true;
-        styles ["subtitle"]
-      }
+    }
+    Gtk.GridView grid_view {
+
     }
   }
 }
