@@ -1,21 +1,32 @@
+/* connection-page.vala
+ *
+ * Copyright (C) 2026 DriverDing
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
+
 class Valash.ConnectionPage : Gtk.Box {
     private Gtk.ScrolledWindow scrolled_window;
     private GLib.ListStore store;
     private Gtk.SingleSelection selection;
     private Gtk.ColumnView view;
 
-
-    public ConnectionPage () {
-        Object ();
-    }
-
     construct {
         scrolled_window = new Gtk.ScrolledWindow ();
         store = new GLib.ListStore (typeof (ConnectionData));
-        selection = new Gtk.SingleSelection (store);
-        selection.autoselect = false;
-        view = new Gtk.ColumnView (selection);
-        view.hexpand = true;
+        selection = new Gtk.SingleSelection (store) { autoselect = false };
+        view = new Gtk.ColumnView (selection) { hexpand = true };
 
         append_column (_("Host"), null, (data) => {
             return "%s:%s".printf (data.metadata.host, data.metadata.destination_port);
@@ -41,13 +52,13 @@ class Valash.ConnectionPage : Gtk.Box {
         factory.setup.connect ((item) => {
             var list_item = (Gtk.ListItem) item;
             var inscription = new Gtk.Inscription (null);
-            inscription.add_css_class ("inscription");
+            // inscription.add_css_class ("inscription");
             list_item.set_child (inscription);
         });
         factory.bind.connect ((factory, item) => {
             var list_item = (Gtk.ListItem) item;
-            Gtk.Inscription inscription = (Gtk.Inscription) list_item.get_child ();
-            ConnectionData data = (ConnectionData) list_item.get_item ();
+            var inscription = (Gtk.Inscription) list_item.get_child ();
+            var data = (ConnectionData) list_item.get_item ();
             inscription.text = formatter (data);
         });
         var column = new Gtk.ColumnViewColumn (title, factory);
@@ -60,10 +71,10 @@ class Valash.ConnectionPage : Gtk.Box {
     }
 
     public void on_connections_received (ConnectionsData data) {
-        refresh_list_store (data);
+        refresh (data);
     }
 
-    private void refresh_list_store (ConnectionsData data) {
+    private void refresh (ConnectionsData data) {
         // Mark All Connections
         Gee.HashSet<string> to_append = new Gee.HashSet<string> ();
         foreach (string id in data.connections.keys) {

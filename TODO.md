@@ -1,19 +1,16 @@
 ## UI
 
-1. Use theme color for the graph
-2. Fix icon theme problem
+- ProxiesPage should be implemented in ListView!
 
-## Functions
+ProxiesPage: 
+- GroupListView -> GroupRow -> ProxyGridView
+- ProviderListView -> ProviderRow -> ProxyGridView
+- Login
+- Settings Popup
+- Store Url in gsettings
+- Auto Reconnect
+- Learn How to handle HTTP ERROR
+- Fix icon theme problem
 
-3. Login
-4. Store Url in gsettings
-5. Proxies page: Provider parsing, proxies settings
-6. Connection page
-7. Auto Reconnect
-8. Learn How to handle HTTP ERROR
 
-## Structure Design
 
-```mermaid
-
-```

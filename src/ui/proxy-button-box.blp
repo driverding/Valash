@@ -1,0 +1,38 @@
+using Gtk 4.0;
+
+template $ValashProxyButtonBox : Gtk.Box {
+  margin-start: 4;
+  margin-top: 4;
+  margin-end: 4;
+  margin-bottom: 4;
+  styles ["linked"]
+
+  Gtk.Button select_button {
+    hexpand: true;
+    clicked => $on_select_button_clicked ();
+    Gtk.Box {
+      orientation: vertical;
+      hexpand: true;
+      Gtk.Label name_label {
+        halign: start;
+      }
+      Gtk.Box {
+        orientation: horizontal;
+        hexpand: true;
+        Gtk.Label proxy_type_label {
+          halign: start;
+          hexpand: true;
+          styles ["caption"]
+        }
+        Gtk.Label delay_label {
+          halign: end;
+          styles ["caption"]
+        }
+      }
+    }
+  }
+  Gtk.Button refresh-button {
+    icon-name: "view-refresh-symbolic";
+    clicked => $on_refresh_button_clicked ();
+  }
+}

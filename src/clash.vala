@@ -76,8 +76,8 @@ public class Valash.ConnectionsData : GLib.Object, Json.Serializable {
     ) {
         if (property_name == "connections") {
             value = Value (typeof (Gee.HashMap));
+            var result = new Gee.HashMap<string, ConnectionData> ();
             Json.Array arr = property_node.get_array ();
-            Gee.HashMap<string, ConnectionData> result = new Gee.HashMap<string, ConnectionData> ();
 
             for (int i = 0; i < arr.get_length (); i += 1) {
                 Json.Node node = arr.get_element (i);
@@ -95,7 +95,7 @@ public class Valash.ConnectionsData : GLib.Object, Json.Serializable {
 
 public class Valash.HealthHistory : GLib.Object, Json.Serializable {
     public GLib.DateTime time { get; set; }
-    public double delay       { get; set; } // Delay == 0 represents infinite delay
+    public int delay          { get; set; } // Delay == 0 represents infinite delay
 
     public override bool deserialize_property (
         string property_name,
@@ -115,7 +115,8 @@ public class Valash.HealthHistory : GLib.Object, Json.Serializable {
 
 public class Valash.ProxyData : GLib.Object, Json.Serializable {
     public string[]     all              { get; set; }
-    public Gee.ArrayList<HealthHistory> history { get; set; } // TODO: This will be the healthcheck result?
+    public Gee.ArrayList<HealthHistory> history { get; set; }
+    public string       id               { get; set; }
     public bool         alive            { get; set; }
     public string       dialer_proxy     { get; set; }
     // public Json.Object  extra            { get; set; } // TODO: This does not work, rewrite it in the future
@@ -193,7 +194,7 @@ public class Valash.SubscriptionInfo : GLib.Object, Json.Serializable {
 
 public class Valash.ProxyProviderData : GLib.Object, Json.Serializable {
     public SubscriptionInfo? subscription_info { get; set; }
-    public Gee.ArrayList<ProxyData> proxies    { get; set; }
+    public Gee.HashMap<string, ProxyData> proxies { get; set; }
     public string name              { get; set; }
     public string provider_type     { get; set; }
     public string vehicle_type      { get; set; }
@@ -213,14 +214,14 @@ public class Valash.ProxyProviderData : GLib.Object, Json.Serializable {
         Json.Node property_node
     ) {
         if (property_name == "proxies") {
-            value = Value (typeof (Gee.ArrayList));
-            Gee.ArrayList<ProxyData> result = new Gee.ArrayList<ProxyData> ();
+            value = Value (typeof (Gee.HashMap));
+            var result = new Gee.HashMap<string, ProxyData> ();
             Json.Array arr = property_node.get_array ();
 
             for (int i = 0; i < arr.get_length (); i += 1) {
                 Json.Node node = arr.get_element (i);
                 ProxyData data = (ProxyData) Json.gobject_deserialize (typeof (ProxyData), node);
-                result.add (data);
+                result.set (data.id, data);
             }
             value.set_object (result);
             return true;
@@ -368,11 +369,11 @@ public class Valash.Clash : Object {
     }
 
     // Proxy Delay
-    public async double request_proxy_delay (string proxy, GLib.Cancellable? cancellable) {
+    public async int request_proxy_delay (string proxy, GLib.Cancellable? cancellable) {
         Soup.Message message = new Soup.Message ("GET", this.url + "/proxies/${proxy}/delay?url=${this.delay_url}&timeout=${this.timeout}");
         try {
             GLib.Bytes response = yield session.send_and_read_async (message, Priority.DEFAULT, cancellable);
-            return Json.from_string ((string) response.get_data ()).get_object ().get_double_member ("delay");
+            return (int) Json.from_string ((string) response.get_data ()).get_object ().get_int_member ("delay");
         } catch (Error e) {
             GLib.warning (e.message);
             return 0;

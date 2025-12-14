@@ -1,4 +1,3 @@
-.graph {
-  border-radius: 12px;
-  clip: true;
+columnview, columnviewcolumn, gridview {
+  background: none;
 }

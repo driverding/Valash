@@ -44,7 +44,7 @@ public class Valash.MainWindow : Adw.ApplicationWindow {
     private void on_stack_notify_visible_child (GLib.Object sender, GLib.ParamSpec pspec) {
         if (stack.visible_child == proxies_page) {
             stderr.printf ("Matched");
-            proxies_page.update.begin ();
+            proxies_page.refresh ();
         }
     }
 }

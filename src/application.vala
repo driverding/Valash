@@ -22,6 +22,19 @@ public class Valash.Application : Adw.Application {
         this.set_accels_for_action ("app.quit", {"<primary>q"});
     }
 
+    protected override void startup () {
+        base.startup ();
+
+        var provider = new Gtk.CssProvider ();
+        provider.load_from_resource ("/com/github/driverding/Valash/ui/style.css");
+
+        Gtk.StyleContext.add_provider_for_display (
+            Gdk.Display.get_default (),
+            provider,
+            Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION
+        );
+    }
+
     public override void activate () {
         Clash.reinit_instance (TEMP_URL, TEMP_TEST_URL, TEMP_TIME_OUT);
 
@@ -49,3 +62,4 @@ public class Valash.Application : Adw.Application {
         message ("app.preferences action activated");
     }
 }
+

@@ -8,5 +8,6 @@
     <file preprocess="xml-stripblanks">ui/login-window.ui</file>
     <file preprocess="xml-stripblanks">ui/main-window.ui</file>
     <file preprocess="xml-stripblanks">ui/proxy-provider-row.ui</file>
+    <file preprocess="xml-stripblanks">ui/proxy-button-box.ui</file>
   </gresource>
 </gresources>

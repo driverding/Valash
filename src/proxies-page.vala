@@ -6,15 +6,8 @@ class Valash.ProxiesPage : Gtk.Box {
     private unowned Adw.PreferencesGroup proxy_providers_group;
 
     private Clash instance;
-
-
-
     private Gee.HashMap<string, ProxyData> proxies;
     private Gee.HashMap<string, ProxyProviderData> providers;
-
-    public ProxiesPage () {
-        Object ();
-    }
 
     construct {
         this.instance = Clash.get_instance ();
@@ -25,47 +18,37 @@ class Valash.ProxiesPage : Gtk.Box {
 
     public async void healthcheck (string provider) {
         yield instance.request_proxy_providers_healthcheck (provider, null);
-        update.begin ();
+        refresh ();
     }
 
-    // This function does not update ui. The caller (the proxy widget) should update the ui.
-    public async double update_delay_individual (string proxy) {
-        double delay = yield instance.request_proxy_delay (proxy, null);
-        HealthHistory history = new HealthHistory () { delay = delay, time = new GLib.DateTime.now_local () };
-        proxies.get (proxy).history.add (history);
-        return delay;
-    }
+    // public async double refresh_delay_individual (string proxy) {
+    //     int delay = yield instance.request_proxy_delay (proxy, null);
+    //     HealthHistory history = new HealthHistory () { delay = delay, time = new GLib.DateTime.now_local () };
+    //     proxies.get (proxy).history.add (history);
+    //     return delay;
+    // }
 
-    public async void update_group_delay (string group) {
+    // public async void refresh_group_delay (string group) {
 
         // Use a better way of handling instead of reconstruct UI
+    // }
+
+    public void refresh () { // having "all" means selectable
+        refresh_proxies_group.begin ();
+        refresh_proxy_providers_group.begin ();
     }
 
-    public async void update () { // having "all" means selectable
+
+    private async void refresh_proxies_group () {
         proxies = yield instance.request_proxies (null);
+        // while (proxies_group.get_row (0) != null) {
+        //     proxies_group.remove (proxies_group.get_row (0));
+        // }
+
+    }
+
+    private async void refresh_proxy_providers_group () {
         providers = yield instance.request_proxy_providers (null);
-        update_ui ();
-    }
-
-
-    /* Graphics */
-
-    public void update_ui () {
-        update_proxies_group ();
-        update_proxy_providers_group ();
-    }
-
-    private void update_proxies_group () { // Rewrite it in database
-        while (proxies_group.get_row (0) != null) {
-            proxies_group.remove (proxies_group.get_row (0));
-        }
-
-    }
-
-    private void update_proxy_providers_group () {  // Rewrite it in database
-        while (proxy_providers_group.get_row (0) != null) {
-            proxy_providers_group.remove (proxy_providers_group.get_row (0));
-        }
 
         foreach (var provider in providers.values) {
             switch (provider.vehicle_type) {

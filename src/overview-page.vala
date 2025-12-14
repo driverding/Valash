@@ -1,3 +1,21 @@
+/* overview-page.vala
+ *
+ * Copyright (C) 2026 DriverDing
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
+
 [GtkTemplate (ui = "/com/github/driverding/Valash/ui/overview-page.ui")]
 class Valash.OverviewPage : Gtk.Box {
     [GtkChild]
@@ -19,13 +37,8 @@ class Valash.OverviewPage : Gtk.Box {
 
     private Clash instance;
 
-    public OverviewPage () {
-        Object ();
-    }
-
     construct {
         this.instance = Clash.get_instance ();
-
         start_connections ();
     }
 
@@ -66,6 +79,7 @@ class Valash.OverviewPage : Gtk.Box {
     }
 
     private bool tun_switch_lock = false;
+
     [GtkCallback]
     private void on_tun_switch_notify_active (GLib.Object sender, GLib.ParamSpec pspec) {
         Adw.SwitchRow source = (Adw.SwitchRow) sender;
