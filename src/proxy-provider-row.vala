@@ -45,9 +45,6 @@ class Valash.ProxyProviderRow : Adw.ExpanderRow {
         });
         view.set_factory (factory);
         view.set_model (selection);
-        // view = new Gtk.GridView (selection, factory) { hexpand = true };
-        // view.add_css_class ("no-bg");
-        // expander_box.append (view);
     }
 
     public ProxyProviderRow.from_data (ProxyProviderData data) {

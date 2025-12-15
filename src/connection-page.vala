@@ -28,18 +28,18 @@ class Valash.ConnectionPage : Gtk.Box {
         selection = new Gtk.SingleSelection (store) { autoselect = false };
         view = new Gtk.ColumnView (selection) { hexpand = true };
 
-        append_column (_("Host"), null, (data) => {
+        append_column (_("Host"), (data) => {
             return "%s:%s".printf (data.metadata.host, data.metadata.destination_port);
         });
-        append_column (_("Chains"), null, (data) => {
+        append_column (_("Chains"), (data) => {
             return string.joinv (" <- ", data.chains);
         });
-        append_column (_("Download"), 100, (data) => {
+        append_column (_("Download"), (data) => {
             return format_value (data.download);
-        });
-        append_column (_("Upload"), 100, (data) => {
+        }, 100);
+        append_column (_("Upload"), (data) => {
             return format_value (data.upload);
-        });
+        }, 100);
 
         scrolled_window.set_child (view);
         this.append (scrolled_window);
@@ -47,7 +47,7 @@ class Valash.ConnectionPage : Gtk.Box {
 
     delegate string Formatter (ConnectionData data);
 
-    private void append_column (string title, int? fixed_width, Formatter formatter) {
+    private void append_column (string title, Formatter formatter, int? fixed_width = null) {
         var factory = new Gtk.SignalListItemFactory ();
         factory.setup.connect ((item) => {
             var list_item = (Gtk.ListItem) item;

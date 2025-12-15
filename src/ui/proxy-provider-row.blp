@@ -19,24 +19,43 @@ template $ValashProxyProviderRow : Adw.ExpanderRow {
     }
   }
 
-  Gtk.Box {
-    orientation: vertical;
-    margin-start: 12;
-    margin-top: 12;
-    margin-end: 12;
-    margin-bottom: 12;
+  Gtk.Button health_check_button {
+    label: _("Health Check and Update");
+    clicked => $on_health_check_button_clicked ();
+    margin-start: 8;
+    margin-top: 8;
+    margin-end: 8;
+    margin-bottom: 8;
+  }
 
-    Gtk.Button health_check_button {
-      margin-start: 8;
-      margin-top: 4;
-      margin-end: 8;
-      margin-bottom: 8;
-      label: _("Health Check and Update");
-      clicked => $on_health_check_button_clicked ();
-    }
-
+  Gtk.ScrolledWindow {
+    vscrollbar-policy: never;
+    hscrollbar-policy: never;
     Gtk.GridView view {
-      hexpand: true;
+      min-columns: 2;
+      max-columns: 2;
     }
   }
+
+  // Gtk.Box {
+  //   orientation: vertical;
+  //   margin-start: 12;
+  //   margin-top: 12;
+  //   margin-end: 12;
+  //   margin-bottom: 12;
+
+  //   Gtk.Button health_check_button {
+  //     margin-start: 8;
+  //     margin-top: 4;
+  //     margin-end: 8;
+  //     margin-bottom: 8;
+  //     label: _("Health Check and Update");
+  //     clicked => $on_health_check_button_clicked ();
+  //   }
+
+  //   Gtk.GridView view {
+  //     hexpand: true;
+  //     vexpand: false;
+  //   }
+  // }
 }
