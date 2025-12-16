@@ -59,7 +59,7 @@ public class Valash.ConnectionData : GLib.Object, Json.Serializable {
 }
 
 public class Valash.ConnectionsData : GLib.Object, Json.Serializable {
-    public Gee.HashMap<string, ConnectionData> connections { get; set; } // TODO: Convert to HashTable Perhaps
+    public Gee.HashMap<string, ConnectionData> connections { get; set; } // TODO: When no connections, it gives null
     public double download_total { get; set; }
     public double upload_total   { get; set; }
     public double memory         { get; set; }
@@ -77,13 +77,17 @@ public class Valash.ConnectionsData : GLib.Object, Json.Serializable {
         if (property_name == "connections") {
             value = Value (typeof (Gee.HashMap));
             var result = new Gee.HashMap<string, ConnectionData> ();
-            Json.Array arr = property_node.get_array ();
 
-            for (int i = 0; i < arr.get_length (); i += 1) {
-                Json.Node node = arr.get_element (i);
-                ConnectionData data = (ConnectionData) Json.gobject_deserialize (typeof (ConnectionData), node);
-                result.set (data.id, data);
+            if (!property_node.is_null ()) {
+                Json.Array arr = property_node.get_array ();
+
+                for (int i = 0; i < arr.get_length (); i += 1) {
+                    Json.Node node = arr.get_element (i);
+                    ConnectionData data = (ConnectionData) Json.gobject_deserialize (typeof (ConnectionData), node);
+                    result.set (data.id, data);
+                }
             }
+
             value.set_object (result);
             return true;
         }
@@ -358,7 +362,8 @@ public class Valash.Clash : Object {
             GLib.Bytes response = yield session.send_and_read_async (message, Priority.DEFAULT, cancellable);
             Json.Object proxies_obj = Json.from_string ((string) response.get_data ()).get_object ().get_object_member ("proxies");
             proxies_obj.foreach_member ((obj, name, node) => {
-                result.set (name, (ProxyData) Json.gobject_deserialize (typeof (ProxyData), node));
+                var data = (ProxyData) Json.gobject_deserialize (typeof (ProxyData), node);
+                result.set (name, data);
             });
             return result;
 

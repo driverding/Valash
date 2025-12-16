@@ -14,3 +14,5 @@ ProxiesPage:
 
 Rewrite Diff Logic
 
+What if two proxies have a same name? How clash handles this? Needs to learn.
+

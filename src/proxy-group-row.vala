@@ -18,5 +18,49 @@
 
 [GtkTemplate (ui = "/com/github/driverding/Valash/ui/proxy-group-row.ui")]
 class Valash.ProxyGroupRow : Adw.ExpanderRow {
+    [GtkChild]
+    private unowned Gtk.FlowBox flow_box;
     
+    public string name { get; construct; }
+    private Gee.HashMap<string, ProxyButtonBox> proxy_buttons;
+
+    construct {
+        proxy_buttons = new Gee.HashMap<string, ProxyButtonBox> ();
+    }
+
+    public ProxyGroupRow.from_data (string name, Gee.HashMap<string, ProxyData> data) {
+        Object (name: name);
+        refresh (data);
+    }
+
+    public void refresh (Gee.HashMap<string, ProxyData> data) {
+        this.title = name;
+        this.subtitle = _("%d Proxies").printf (data[name].all.length);
+
+        // Proxies - Diff
+        var seen = new Gee.HashSet<string> ();
+
+        foreach (string child_name in data[name].all) {
+            seen.add (child_name);
+            if (proxy_buttons.has_key (child_name)) {
+                proxy_buttons[child_name].refresh (data[child_name]);
+            } else {
+                var new_button = new ProxyButtonBox.from_data (data[child_name]);
+                flow_box.append (new_button);
+                proxy_buttons.set (child_name, new_button);
+            }
+        }
+
+        foreach (string child_name in proxy_buttons.keys) {
+            if (!seen.contains (child_name)) {
+                var button_to_remove = proxy_buttons[child_name];
+                flow_box.remove (button_to_remove);
+                proxy_buttons.unset (child_name);
+            }
+        }
+    }
+
+    [GtkCallback]
+    private void on_delay_check_button_clicked (Gtk.Button source) {
+    }
 }

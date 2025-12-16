@@ -2,7 +2,6 @@ using Gtk 4.0;
 using Adw 1;
 
 template $ValashProxyProviderRow : Adw.ExpanderRow {
-  styles ["no-bg"]
   [suffix]
   Gtk.Box {
     orientation: vertical;
@@ -30,5 +29,6 @@ template $ValashProxyProviderRow : Adw.ExpanderRow {
 
   Gtk.FlowBox flow_box {
     homogeneous: true;
+    selection-mode: none;
   }
 }
