@@ -16,6 +16,10 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+namespace Valash {
+    delegate void SelectingProxyHandler ();
+}
+
 [GtkTemplate (ui = "/com/github/driverding/Valash/ui/proxy-button-box.ui")]
 class Valash.ProxyButtonBox : Gtk.Box {
     [GtkChild]

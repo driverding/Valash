@@ -1,10 +1,10 @@
 ## UI
 
-- ProxiesPage should be implemented in ListView!
+- ProxiesPage should not be implemented in View!
 
 ProxiesPage: 
-- GroupListView -> GroupRow -> ProxyGridView
-- ProviderListView -> ProviderRow -> ProxyGridView
+- ProxyGroup -> ProxyRow -> ProxyFlowBox
+- ProviderGroup -> ProviderRow -> ProxyFlowBox
 - Login
 - Settings Popup
 - Store Url in gsettings
@@ -12,5 +12,5 @@ ProxiesPage:
 - Learn How to handle HTTP ERROR
 - Fix icon theme problem
 
-
+Rewrite Diff Logic
 

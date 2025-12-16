@@ -23,28 +23,12 @@ class Valash.ProxyProviderRow : Adw.ExpanderRow {
     [GtkChild]
     private unowned Gtk.Label right_label;
     [GtkChild]
-    private unowned Gtk.GridView view;
+    private unowned Gtk.FlowBox flow_box;
 
-    private GLib.ListStore store;
-    private Gtk.NoSelection selection;
+    private Gee.HashMap<string, ProxyButtonBox> proxy_buttons;
 
     construct {
-        store = new GLib.ListStore (typeof (ProxyData));
-        selection = new Gtk.NoSelection (store);
-        var factory = new Gtk.SignalListItemFactory ();
-        factory.setup.connect ((item) => {
-            var list_item = (Gtk.ListItem) item;
-            var button_box = new ProxyButtonBox ();
-            list_item.set_child (button_box);
-        });
-        factory.bind.connect ((factory, item) => {
-            var list_item = (Gtk.ListItem) item;
-            var button_box = (ProxyButtonBox) list_item.get_child ();
-            var data = (ProxyData) list_item.get_item ();
-            button_box.refresh (data);
-        });
-        view.set_factory (factory);
-        view.set_model (selection);
+        proxy_buttons = new Gee.HashMap<string, ProxyButtonBox> ();
     }
 
     public ProxyProviderRow.from_data (ProxyProviderData data) {
@@ -59,27 +43,26 @@ class Valash.ProxyProviderRow : Adw.ExpanderRow {
             + _("%d Proxies").printf (data.proxies.size) + " - "
             + data.updated_at.format (_("Updated on %b. %-d"));
 
-        // Proxies
-        // Mark All Proxies
-        Gee.HashSet<string> to_append = new Gee.HashSet<string> ();
-        foreach (string id in data.proxies.keys) {
-            to_append.add (id);
+        // Proxies - Diff
+        var seen = new Gee.HashSet<string> ();
+
+        foreach (ProxyData proxy in data.proxies.values) {
+            seen.add (proxy.id);
+            if (proxy_buttons.has_key (proxy.id)) {
+                proxy_buttons[proxy.id].refresh (proxy);
+            } else {
+                var new_button = new ProxyButtonBox.from_data (proxy);
+                flow_box.append (new_button);
+                proxy_buttons.set (proxy.id, new_button);
+            }
         }
 
-        // Remove Disappeared Proxies, Splice Existing Proxies
-        for (int i = (int) store.get_n_items () - 1; i >= 0; i -= 1) {
-            ProxyData item = (ProxyData) store.get_item (i);
-            if (!data.proxies.has_key (item.id)) {
-                store.remove (i);
-            } else {
-                store.splice (i, 1, {item});
-                to_append.remove (item.id);
+        foreach (string id in proxy_buttons.keys) {
+            if (!seen.contains (id)) {
+                var button_to_remove = proxy_buttons[id];
+                flow_box.remove (button_to_remove);
+                proxy_buttons.unset (id);
             }
-         }
-
-        // Addend New Connections
-        foreach (string id in to_append) {
-            store.append (data.proxies[id]);
         }
 
         // Right Label

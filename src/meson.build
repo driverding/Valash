@@ -12,6 +12,7 @@ valash_sources = [
   'connection-page.vala',
 
 	'proxy-provider-row.vala',
+	# 'proxy-group-row.vala',
 	'proxy-button-box.vala',
   'graph.vala',
 

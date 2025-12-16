@@ -13,12 +13,17 @@ template $ValashProxiesPage : Gtk.Box {
         orientation: vertical;
         spacing: 16;
 
-        Adw.PreferencesGroup proxies_group {
+        Adw.PreferencesGroup {
           title: _("Proxies");
         }
 
-        Adw.PreferencesGroup proxy_providers_group {
+        Adw.PreferencesGroup proxy_provider_group {
           title: _("Proxy Providers");
+
+
+          // Gtk.ListView proxy_provider_view {
+          //   styles ["boxed-list"]
+          // }
         }
 
         Gtk.Box {

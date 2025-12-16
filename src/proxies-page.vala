@@ -1,16 +1,15 @@
 [GtkTemplate (ui = "/com/github/driverding/Valash/ui/proxies-page.ui")]
 class Valash.ProxiesPage : Gtk.Box {
     [GtkChild]
-    private unowned Adw.PreferencesGroup proxies_group;
-    [GtkChild]
-    private unowned Adw.PreferencesGroup proxy_providers_group;
+    private unowned Adw.PreferencesGroup proxy_provider_group;
 
     private Clash instance;
-    private Gee.HashMap<string, ProxyData> proxies;
-    private Gee.HashMap<string, ProxyProviderData> providers;
+    // private Gee.HashMap<string, ProxyGroupRow> group_rows;
+    private Gee.HashMap<string, ProxyProviderRow> provider_rows;
 
     construct {
         this.instance = Clash.get_instance ();
+        provider_rows = new Gee.HashMap<string, ProxyProviderRow> ();
     }
 
 
@@ -40,24 +39,34 @@ class Valash.ProxiesPage : Gtk.Box {
 
 
     private async void refresh_proxies_group () {
-        proxies = yield instance.request_proxies (null);
-        // while (proxies_group.get_row (0) != null) {
-        //     proxies_group.remove (proxies_group.get_row (0));
-        // }
-
+        // var data = yield instance.request_proxies (null);
     }
 
     private async void refresh_proxy_providers_group () {
-        providers = yield instance.request_proxy_providers (null);
+        var data = yield instance.request_proxy_providers (null);
 
-        foreach (var provider in providers.values) {
-            switch (provider.vehicle_type) {
-                case "Compatible":
-                    break;
-                case "HTTP":
-                    proxy_providers_group.add (new ProxyProviderRow.from_data (provider));
-                    break;
+        // Diff
+        var seen = new Gee.HashSet<string> ();
+
+        foreach (ProxyProviderData provider in data.values) {
+            if (provider.vehicle_type == "Compatible") continue;
+            seen.add (provider.name);
+            if (provider_rows.has_key (provider.name)) {
+                provider_rows[provider.name].refresh (provider);
+            } else {
+                var new_row = new ProxyProviderRow.from_data (provider);
+                proxy_provider_group.add (new_row);
+                provider_rows.set (provider.name, new_row);
             }
         }
+
+        foreach (string name in provider_rows.keys) {
+            if (!seen.contains (name)) {
+                var row_to_remove = provider_rows[name];
+                proxy_provider_group.remove (row_to_remove);
+                provider_rows.unset (name);
+            }
+        }
+
     }
 }
