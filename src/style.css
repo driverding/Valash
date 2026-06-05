@@ -1,0 +1,9 @@
+columnview, columnviewcolumn {
+  background: none;
+}
+
+flowbox > flowboxchild {
+  background: transparent;
+  border: none;
+  box-shadow: none;
+}

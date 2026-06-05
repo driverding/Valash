@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schemalist gettext-domain="valash">
+	<schema id="com.github.driverding.Valash" path="/com/github/driverding/Valash/">
+	  <key name="url" type="s">
+	    <default>''</default>
+	    <summary>URL to Clash/Mihomo RESTful API</summary>
+  	  </key>
+	  <key name="secret" type="s">
+	    <default>''</default>
+	    <summary>Secret to Access Clash/Mihomo RESTful API</summary>
+  	  </key>
+	  <key name="test-url" type="s">
+	    <default>'https://www.gstatic.com/generate_204'</default>
+	    <summary>URL for Testing Proxy Delay</summary>
+  	  </key>
+	  	<key name="test-timeout" type="i">
+	    <default>1000</default>
+	    <summary>Timeout for Proxy Health Check in ms</summary>
+  	  </key>
+	</schema>
+</schemalist>

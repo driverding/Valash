@@ -1,0 +1,70 @@
+using Gtk 4.0;
+using Adw 1;
+
+menu window_menu {
+  section {
+    item {
+      label: _("Preferences");
+      action: "app.preferences";
+    }
+    item {
+      label: _("Relogin");
+      action: "app.relogin";
+    }
+    item {
+      label: _("About Valash");
+      action: "app.about";
+    }
+  }
+}
+
+template $ValashMainWindow : Adw.ApplicationWindow {
+  title: _("Valash");
+  default-height: 620;
+  default-width: 800;
+
+  content: Adw.ToolbarView {
+    [top]
+    Adw.HeaderBar {
+      title-widget: Adw.ViewSwitcher {
+        stack: stack;
+        policy: wide;
+      };
+
+      Gtk.Button {
+        icon-name: "view-refresh-symbolic";
+      }
+
+
+      [end]
+      Gtk.MenuButton {
+        icon-name: "open-menu-symbolic";
+        menu-model: window_menu;
+      }
+    }
+
+    Adw.ToastOverlay overlay {
+      Adw.ViewStack stack {
+        notify::visible-child => $on_stack_notify_visible_child ();
+        Adw.ViewStackPage {
+          title: _("Overview");
+          icon-name: "network-wireless-hotspot-symbolic";
+          child: $ValashOverviewPage overview_page { };
+        }
+
+        Adw.ViewStackPage {
+          title: _("Proxies");
+          icon-name: "network-vpn-symbolic";
+          child: $ValashProxiesPage proxies_page { };
+        }
+
+        Adw.ViewStackPage {
+          title: _("Connections");
+          icon-name: "network-transmit-receive-symbolic";
+          child: $ValashConnectionPage connection_page { };
+        }
+      }
+    }
+    
+  };
+}
