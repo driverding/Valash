@@ -6,7 +6,7 @@ A Mihomo/Clash control panel written in GTK and Vala.
 - Switch Proxy
 
 ## Todo
-- Login with secret
+- Sortable connection page
 - Connetion failure handling and auto reconnect
 - Better UI
 - Clean up shitty code

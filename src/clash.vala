@@ -261,6 +261,7 @@ public class Valash.Clash: Object {
     // Test
     public async bool test_validity (string url, string secret, out string error) {
         Soup.Message message = new Soup.Message ("GET", url);
+        if (secret != "") message.request_headers.append ("Authorization", @"Bearer $(secret)");
         try {
             GLib.Bytes response = yield session.send_and_read_async (message, Priority.DEFAULT, null);
             string content = (string) response.get_data ();
@@ -285,6 +286,7 @@ public class Valash.Clash: Object {
 
     public async void start_traffic () {
         Soup.Message message = new Soup.Message ("GET", url + "/traffic");
+        if (secret != "") message.request_headers.append ("Authorization", @"Bearer $(secret)");
         traffic_cancellable = new GLib.Cancellable ();
         try {
             InputStream stream = yield session.send_async (message, Priority.DEFAULT, traffic_cancellable);
@@ -321,6 +323,7 @@ public class Valash.Clash: Object {
 
     public async void start_memory () {
         Soup.Message message = new Soup.Message ("GET", this.url + "/memory");
+        if (secret != "") message.request_headers.append ("Authorization", @"Bearer $(secret)");
         memory_cancellable = new GLib.Cancellable ();
         try {
             InputStream stream = yield session.send_async (message, Priority.DEFAULT, memory_cancellable);
@@ -355,6 +358,7 @@ public class Valash.Clash: Object {
     // Connections
     public async ConnectionsData? request_connections (GLib.Cancellable? cancellable) {
         Soup.Message message = new Soup.Message ("GET", this.url + "/connections");
+        if (secret != "") message.request_headers.append ("Authorization", @"Bearer $(secret)");
         try {
             GLib.Bytes response = yield session.send_and_read_async (message, Priority.DEFAULT, cancellable);
             string content = (string) response.get_data ();
@@ -370,6 +374,7 @@ public class Valash.Clash: Object {
     public async Gee.HashMap<string, ProxyData>? request_proxies (GLib.Cancellable? cancellable) {
         Gee.HashMap<string, ProxyData> result = new Gee.HashMap<string, ProxyData> ();
         Soup.Message message = new Soup.Message ("GET", this.url + "/proxies");
+        if (secret != "") message.request_headers.append ("Authorization", @"Bearer $(secret)");
         try {
             GLib.Bytes response = yield session.send_and_read_async (message, Priority.DEFAULT, cancellable);
             Json.Object proxies_obj = Json.from_string ((string) response.get_data ()).get_object ().get_object_member ("proxies");
@@ -388,6 +393,7 @@ public class Valash.Clash: Object {
     // Proxy Delay
     public async int request_proxy_delay (string proxy, GLib.Cancellable? cancellable) {
         Soup.Message message = new Soup.Message ("GET", this.url + "/proxies/${proxy}/delay?url=${this.delay_url}&timeout=${this.timeout}");
+        if (secret != "") message.request_headers.append ("Authorization", @"Bearer $(secret)");
         try {
             GLib.Bytes response = yield session.send_and_read_async (message, Priority.DEFAULT, cancellable);
             return (int) Json.from_string ((string) response.get_data ()).get_object ().get_int_member ("delay");
@@ -401,6 +407,7 @@ public class Valash.Clash: Object {
     public async Gee.HashMap<string, ProxyProviderData>? request_proxy_providers (GLib.Cancellable? cancellable) {
         Gee.HashMap<string, ProxyProviderData> result = new Gee.HashMap<string, ProxyProviderData> ();
         Soup.Message message = new Soup.Message ("GET", this.url + "/providers/proxies");
+        if (secret != "") message.request_headers.append ("Authorization", @"Bearer $(secret)");
         try {
             GLib.Bytes response = yield session.send_and_read_async (message, Priority.DEFAULT, cancellable);
             Json.Object providers_obj = Json.from_string ((string) response.get_data ()).get_object ().get_object_member ("providers");
@@ -417,6 +424,7 @@ public class Valash.Clash: Object {
     // Health Check
     public async void request_proxy_providers_healthcheck (string provider, GLib.Cancellable? cancellable) {
         Soup.Message message = new Soup.Message ("GET", this.url + "/providers/proxies/${provider}/healthcheck");
+        if (secret != "") message.request_headers.append ("Authorization", @"Bearer $(secret)");
         try {
             yield session.send_async (message, Priority.DEFAULT, cancellable);
         } catch (Error e) {
@@ -428,6 +436,7 @@ public class Valash.Clash: Object {
     public async bool configure_tun (bool setting, GLib.Cancellable? cancellable) {
         string body = @"{\"tun\": {\"enable\": $setting}}";
         Soup.Message message = new Soup.Message ("PATCH", this.url + "/configs");
+        if (secret != "") message.request_headers.append ("Authorization", @"Bearer $(secret)");
         message.request_headers.set_content_type ("application/json", null);
         message.set_request_body_from_bytes ("application/json", new GLib.Bytes (body.data));
         try {
@@ -443,6 +452,7 @@ public class Valash.Clash: Object {
     public async bool set_proxy (string group, string proxy, GLib.Cancellable? cancellable) {
         string body = @"{\"name\": \"$proxy\"}";
         Soup.Message message = new Soup.Message ("PUT", this.url + "/proxies/" + group);
+        if (secret != "") message.request_headers.append ("Authorization", @"Bearer $(secret)");
         message.request_headers.set_content_type ("application/json", null);
         message.set_request_body_from_bytes ("application/json", new GLib.Bytes (body.data));
         try {
@@ -456,11 +466,13 @@ public class Valash.Clash: Object {
 
     public void send_restart () {
         Soup.Message message = new Soup.Message ("POST", this.url + "/restart");
+        if (secret != "") message.request_headers.append ("Authorization", @"Bearer $(secret)");
         session.send_async.begin (message, Priority.DEFAULT, null);
     }
 
     public void send_reload () {
         Soup.Message message = new Soup.Message ("POST", this.url + "/upgrade");
+        if (secret != "") message.request_headers.append ("Authorization", @"Bearer $(secret)");
         session.send_async.begin (message, Priority.DEFAULT, null);
     }
 }
