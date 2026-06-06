@@ -392,11 +392,12 @@ public class Valash.Clash: Object {
 
     // Proxy Delay
     public async int request_proxy_delay (string proxy, GLib.Cancellable? cancellable) {
-        Soup.Message message = new Soup.Message ("GET", this.url + "/proxies/${proxy}/delay?url=${this.delay_url}&timeout=${this.timeout}");
+        Soup.Message message = new Soup.Message ("GET", this.url + @"/proxies/$(proxy)/delay?url=$(this.delay_url)&timeout=$(this.timeout)");
         if (secret != "") message.request_headers.append ("Authorization", @"Bearer $(secret)");
         try {
             GLib.Bytes response = yield session.send_and_read_async (message, Priority.DEFAULT, cancellable);
-            return (int) Json.from_string ((string) response.get_data ()).get_object ().get_int_member ("delay");
+            var obj = Json.from_string ((string) response.get_data ()).get_object ();
+            return obj.has_member ("delay") ? (int) obj.get_int_member ("delay") : 0;
         } catch (Error e) {
             GLib.warning (e.message);
             return 0;

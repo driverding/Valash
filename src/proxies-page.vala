@@ -4,6 +4,8 @@ class Valash.ProxiesPage : Gtk.Box {
     private unowned Adw.PreferencesGroup proxy_provider_group;
     [GtkChild]
     private unowned Adw.PreferencesGroup proxy_group_group;
+    [GtkChild]
+    private unowned Gtk.Button update_all_button;
 
     private Clash instance;
     private Gee.HashMap<string, ProxyGroupRow> group_rows;
@@ -18,10 +20,17 @@ class Valash.ProxiesPage : Gtk.Box {
 
     /* Database */
 
-    public async void healthcheck (string provider) {
+    private async void update_provider (string provider) {
         yield instance.request_proxy_providers_healthcheck (provider, null);
-        stderr.printf ("Checked");
+        message ("provider healthchecked");
         refresh ();
+    }
+
+    private async void update_all () {
+        update_all_button.sensitive = false;
+
+        message ("update all todo");
+        update_all_button.sensitive = true;
     }
 
     // public async double refresh_delay_individual (string proxy) {
@@ -40,7 +49,6 @@ class Valash.ProxiesPage : Gtk.Box {
         refresh_proxy_groups.begin ();
         refresh_proxy_providers.begin ();
     }
-
 
     private async void refresh_proxy_groups () {
         var data = yield instance.request_proxies (null);
@@ -94,6 +102,10 @@ class Valash.ProxiesPage : Gtk.Box {
                 provider_rows.unset (name);
             }
         }
+    }
 
+    [GtkCallback]
+    private void on_update_all_button_clicked (Gtk.Button source) {
+        update_all.begin ();
     }
 }

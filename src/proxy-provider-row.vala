@@ -33,7 +33,9 @@ class Valash.ProxyProviderRow : Adw.ExpanderRow {
             if (proxy_buttons.has_key (proxy.id)) {
                 proxy_buttons[proxy.id].refresh (proxy);
             } else {
-                var new_button = new ProxyButtonBox.from_data (proxy, this.selecting_handler);
+                var new_button = new ProxyButtonBox.from_data (proxy,
+                                                               this.selecting_handler,
+                                                               this.delay_checking_handler);
                 flow_box.append (new_button);
                 proxy_buttons.set (proxy.id, new_button);
             }
@@ -72,6 +74,7 @@ class Valash.ProxyProviderRow : Adw.ExpanderRow {
     }
 
     public void selecting_handler (string proxy_name) {}
+    public void delay_checking_handler (string proxy_name) {}
 
     [GtkCallback]
     private void on_health_check_button_clicked (Gtk.Button source) {

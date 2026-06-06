@@ -1,5 +1,6 @@
 namespace Valash {
     delegate void SelectingProxyHandler (string proxy_name);
+    delegate void DelayCheckingHandler  (string proxy_name);
 }
 
 [GtkTemplate (ui = "/com/github/driverding/Valash/proxy-button-box.ui")]
@@ -17,6 +18,7 @@ class Valash.ProxyButtonBox : Gtk.Box {
 
     private string proxy_name;
     private SelectingProxyHandler selecting_handler;
+    private DelayCheckingHandler  delay_checking_handler;
 
     private bool _selected;
     public bool selected {
@@ -36,22 +38,30 @@ class Valash.ProxyButtonBox : Gtk.Box {
         }
     }
 
+    public int delay {
+        set {
+            delay_label.label = value == 0 ? "-" : "%dms".printf (value);
+        }
+    }
+
 
     construct {
 
     }
 
-    public ProxyButtonBox.from_data (ProxyData data, SelectingProxyHandler selecting_handler) {
+    public ProxyButtonBox.from_data (ProxyData data,
+                                     SelectingProxyHandler selecting_handler,
+                                     DelayCheckingHandler delay_checking_handler) {
         refresh (data);
         this.selecting_handler = selecting_handler;
+        this.delay_checking_handler = delay_checking_handler;
     }
 
     public void refresh (ProxyData data) {
         this.proxy_name = data.name;
         name_label.label = data.name;
         proxy_type_label.label = data.proxy_type;
-        int latest_delay = get_latest_delay (data.history);
-        delay_label.label = latest_delay == 0 ? "-" : "%dms".printf (latest_delay); // Get the newest
+        this.delay = get_latest_delay (data.history);
     }
 
     private int get_latest_delay (Gee.ArrayList<HealthHistory> histories) {
@@ -77,7 +87,6 @@ class Valash.ProxyButtonBox : Gtk.Box {
 
     [GtkCallback]
     private void on_refresh_button_clicked (Gtk.Button source) {
-        // TODO
-
+        delay_checking_handler (this.proxy_name);
     }
 }

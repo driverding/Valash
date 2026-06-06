@@ -19,19 +19,15 @@ template $ValashProxiesPage : Gtk.Box {
 
         Adw.PreferencesGroup proxy_provider_group {
           title: _("Proxy Providers");
-
-
-          // Gtk.ListView proxy_provider_view {
-          //   styles ["boxed-list"]
-          // }
         }
 
         Gtk.Box {
           orientation: horizontal;
           homogeneous: true;
           spacing: 12;
-          Gtk.Button {
+          Gtk.Button update_all_button {
             label: _("Delay Check and Update All");
+            clicked => $on_update_all_button_clicked ();
           }
         }
       }

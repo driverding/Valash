@@ -31,7 +31,9 @@ class Valash.ProxyGroupRow : Adw.ExpanderRow {
                 proxy_buttons[child_name].refresh (data[child_name]);
                 proxy_buttons[child_name].selected = false;
             } else {
-                var new_button = new ProxyButtonBox.from_data (data[child_name], this.selecting_handler);
+                var new_button = new ProxyButtonBox.from_data (data[child_name],
+                                                               this.selecting_handler,
+                                                               this.delay_checking_handler);
                 flow_box.append (new_button);
                 proxy_buttons.set (child_name, new_button);
             }
@@ -65,7 +67,16 @@ class Valash.ProxyGroupRow : Adw.ExpanderRow {
         }
     }
 
-    [GtkCallback]
-    private void on_delay_check_button_clicked (Gtk.Button source) {
+    public void delay_checking_handler (string proxy_name) {
+        this.update_proxy.begin (proxy_name);
     }
+
+    private async void update_proxy (string proxy_name) {
+        int delay = yield instance.request_proxy_delay (proxy_name, null);
+        this.proxy_buttons[proxy_name].delay = delay;
+        message ("proxy delay checked: %d", delay);
+    }
+
+    [GtkCallback]
+    private void on_delay_check_button_clicked (Gtk.Button source) {}
 }
