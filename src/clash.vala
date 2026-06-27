@@ -309,19 +309,28 @@ public class Valash.Clash: Object {
     }
     
 
-    // Traffic
+    public signal void error_encountered (string message);
+
+    private void warn_error (Error e) {
+        error_encountered (e.message);
+        GLib.warning (e.message);
+    }
+
+    // ========================= Traffic =========================
+    public signal void traffic_received (TrafficChunk traffic);
     public GLib.Cancellable? traffic_cancellable;
 
     public async void start_traffic () {
         Soup.Message message = new Soup.Message ("GET", url + "/traffic");
         if (secret != "") message.request_headers.append ("Authorization", @"Bearer $(secret)");
+
         traffic_cancellable = new GLib.Cancellable ();
         try {
             InputStream stream = yield session.send_async (message, Priority.DEFAULT, traffic_cancellable);
             DataInputStream data_stream = new DataInputStream (stream);
             traffic_loop.begin (data_stream);
         } catch (Error e) {
-            GLib.warning (e.message);
+            warn_error (e);
             return;
         }
     }
@@ -339,26 +348,28 @@ public class Valash.Clash: Object {
                 traffic_received (traffic);
             }
         } catch (Error e) {
-            if (!(e is IOError.CANCELLED)) GLib.warning (e.message);
+            if (!(e is IOError.CANCELLED))
+                warn_error (e);
             return;
         }
     }
 
-    public signal void traffic_received (TrafficChunk traffic);
 
-    // Memory
+    // ========================= Memory =========================
+    public signal void memory_received (MemoryChunk memory);
     public GLib.Cancellable? memory_cancellable;
 
     public async void start_memory () {
         Soup.Message message = new Soup.Message ("GET", this.url + "/memory");
         if (secret != "") message.request_headers.append ("Authorization", @"Bearer $(secret)");
+
         memory_cancellable = new GLib.Cancellable ();
         try {
             InputStream stream = yield session.send_async (message, Priority.DEFAULT, memory_cancellable);
             DataInputStream data_stream = new DataInputStream (stream);
             memory_loop.begin (data_stream);
         } catch (Error e) {
-            GLib.warning (e.message);
+            warn_error (e);
             return;
         }
     }
@@ -367,7 +378,7 @@ public class Valash.Clash: Object {
         try {
             while (true) {
                 size_t length;
-                string chunk = yield stream.read_line_async (Priority.DEFAULT, traffic_cancellable, out length);
+                string chunk = yield stream.read_line_async (Priority.DEFAULT, memory_cancellable, out length);
                 if (length == 0) {
                     GLib.message ("Empty Chunk Received");
                     break;
@@ -376,14 +387,14 @@ public class Valash.Clash: Object {
                 memory_received (memory);
             }
         } catch (Error e) {
-            if (!(e is IOError.CANCELLED)) GLib.warning (e.message);
+            if (!(e is IOError.CANCELLED))
+                warn_error (e);
             return;
         }
     }
 
-    public signal void memory_received (MemoryChunk memory);
 
-    // Connections
+    // ========================= Requests =========================
     public async ConnectionsData? request_connections (GLib.Cancellable? cancellable) {
         Soup.Message message = new Soup.Message ("GET", this.url + "/connections");
         if (secret != "") message.request_headers.append ("Authorization", @"Bearer $(secret)");
@@ -393,12 +404,11 @@ public class Valash.Clash: Object {
             ConnectionsData result =  (ConnectionsData) Json.gobject_from_data (typeof (ConnectionsData), content);
             return result;
         } catch (Error e) {
-            GLib.warning (e.message);
+            warn_error (e);
             return null;
         }
     }
 
-    // Proxies
     public async Gee.HashMap<string, ProxyData>? request_proxies (GLib.Cancellable? cancellable) {
         Gee.HashMap<string, ProxyData> result = new Gee.HashMap<string, ProxyData> ();
         Soup.Message message = new Soup.Message ("GET", this.url + "/proxies");
@@ -411,14 +421,12 @@ public class Valash.Clash: Object {
                 result.set (name, data);
             });
             return result;
-
         } catch (Error e) {
-            GLib.warning (e.message);
+            warn_error (e);
             return null;
         }
     }
 
-    // Proxy Delay
     public async int request_proxy_delay (string proxy, GLib.Cancellable? cancellable) {
         Soup.Message message = new Soup.Message ("GET", this.url + @"/proxies/$(proxy)/delay?url=$(this.delay_url)&timeout=$(this.timeout)");
         if (secret != "") message.request_headers.append ("Authorization", @"Bearer $(secret)");
@@ -427,12 +435,11 @@ public class Valash.Clash: Object {
             var obj = Json.from_string ((string) response.get_data ()).get_object ();
             return obj.has_member ("delay") ? (int) obj.get_int_member ("delay") : 0;
         } catch (Error e) {
-            GLib.warning (e.message);
+            warn_error (e);
             return 0;
         }
     }
 
-    // Proxies Providers
     public async Gee.HashMap<string, ProxyProviderData>? request_proxy_providers (GLib.Cancellable? cancellable) {
         Gee.HashMap<string, ProxyProviderData> result = new Gee.HashMap<string, ProxyProviderData> ();
         Soup.Message message = new Soup.Message ("GET", this.url + "/providers/proxies");
@@ -445,23 +452,21 @@ public class Valash.Clash: Object {
             });
             return result;
         } catch (Error e) {
-            GLib.warning (e.message);
+            warn_error (e);
             return null;
         }
     }
 
-    // Health Check
     public async void request_proxy_providers_healthcheck (string provider, GLib.Cancellable? cancellable) {
         Soup.Message message = new Soup.Message ("GET", this.url + "/providers/proxies/${provider}/healthcheck");
         if (secret != "") message.request_headers.append ("Authorization", @"Bearer $(secret)");
         try {
             yield session.send_async (message, Priority.DEFAULT, cancellable);
         } catch (Error e) {
-            GLib.warning (e.message);
+            warn_error (e);
         }
     }
 
-    // Configs
     public async bool configure_tun (bool setting, GLib.Cancellable? cancellable) {
         string body = @"{\"tun\": {\"enable\": $setting}}";
         Soup.Message message = new Soup.Message ("PATCH", this.url + "/configs");
@@ -472,12 +477,11 @@ public class Valash.Clash: Object {
             yield session.send_async (message, Priority.DEFAULT, cancellable);
             return 200 <= message.status_code < 300;
         } catch (Error e) {
-            GLib.warning (e.message);
+            warn_error (e);
             return false;
         }
     }
 
-    // Set Proxy
     public async bool set_proxy (string group, string proxy, GLib.Cancellable? cancellable) {
         string body = @"{\"name\": \"$proxy\"}";
         Soup.Message message = new Soup.Message ("PUT", this.url + "/proxies/" + group);
@@ -488,7 +492,7 @@ public class Valash.Clash: Object {
             yield session.send_async (message, Priority.DEFAULT, cancellable);
             return 200 <= message.status_code < 300;
         } catch (Error e) {
-            GLib.warning (e.message);
+            warn_error (e);
             return false;
         }
     }
