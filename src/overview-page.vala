@@ -17,19 +17,19 @@ class Valash.OverviewPage : Gtk.Box {
     [GtkChild]
     private unowned Gtk.Label memory_usage_label;
 
-    private Clash instance;
+    private Clash clash;
 
-    construct {
-        this.instance = Clash.get_instance ();
+    public void setup (Clash clash) {
+        this.clash = clash;
         start_connections ();
     }
 
     private void start_connections () {
-        instance.start_traffic.begin ();
-        instance.start_memory.begin ();
+        clash.start_traffic.begin ();
+        clash.start_memory.begin ();
 
-        instance.traffic_received.connect (on_traffic_received);
-        instance.memory_received.connect (on_memory_received);
+        clash.traffic_received.connect (on_traffic_received);
+        clash.memory_received.connect (on_memory_received);
     }
 
     private void on_traffic_received (TrafficChunk chunk) {
@@ -72,7 +72,7 @@ class Valash.OverviewPage : Gtk.Box {
     }
 
     private async void configure_tun (Adw.SwitchRow source, bool settings) {
-        bool success = yield instance.configure_tun (settings, null);
+        bool success = yield clash.configure_tun (settings, null);
         if (!success) {
             source.active = !source.active;
         }
@@ -82,12 +82,12 @@ class Valash.OverviewPage : Gtk.Box {
 
     [GtkCallback]
     private void on_reload_config_button_clicked (Gtk.Button source) {
-        instance.send_reload ();
+        clash.send_reload ();
     }
 
     [GtkCallback]
     private void on_restart_button_clicked (Gtk.Button source) {
-        instance.send_restart ();
+        clash.send_restart ();
     }
 }
 

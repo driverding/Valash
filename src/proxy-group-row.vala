@@ -4,17 +4,13 @@ class Valash.ProxyGroupRow : Adw.ExpanderRow {
     private unowned Gtk.FlowBox flow_box;
     
     public string proxy_group_name { get; construct; }
-    private Clash instance;
-    private Gee.HashMap<string, ProxyButtonBox> proxy_buttons;
+    private Clash clash;
+    private Gee.HashMap<string, ProxyButtonBox> proxy_buttons = new Gee.HashMap<string, ProxyButtonBox> ();
     private string selected;
 
-    construct {
-        this.instance = Clash.get_instance ();
-        proxy_buttons = new Gee.HashMap<string, ProxyButtonBox> ();
-    }
-
-    public ProxyGroupRow.from_data (string name, Gee.HashMap<string, ProxyData> data) {
+    public ProxyGroupRow.from_data (string name, Gee.HashMap<string, ProxyData> data, Clash clash) {
         Object (proxy_group_name: name);
+        this.clash = clash;
         refresh (data);
     }
 
@@ -57,7 +53,7 @@ class Valash.ProxyGroupRow : Adw.ExpanderRow {
     }
 
     private async void select_proxy (string proxy_name) {
-        bool result = yield instance.set_proxy (proxy_group_name, proxy_name, null);
+        bool result = yield clash.set_proxy (proxy_group_name, proxy_name, null);
         if (result) {
             this.proxy_buttons[this.selected].selected = false;
             this.selected = proxy_name;
@@ -72,7 +68,7 @@ class Valash.ProxyGroupRow : Adw.ExpanderRow {
     }
 
     private async void update_proxy (string proxy_name) {
-        int delay = yield instance.request_proxy_delay (proxy_name, null);
+        int delay = yield clash.request_proxy_delay (proxy_name, null);
         this.proxy_buttons[proxy_name].delay = delay;
         message ("proxy delay checked: %d", delay);
     }

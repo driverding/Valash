@@ -1,4 +1,7 @@
 public class Valash.Application : Adw.Application {
+    public Clash    clash    { get; construct; }
+    public Settings settings { get; construct; }
+
     public Application () {
         Object (
             application_id: "com.github.driverding.Valash",
@@ -8,6 +11,9 @@ public class Valash.Application : Adw.Application {
     }
 
     construct {
+        this.clash = new Clash ();
+        this.settings = new Settings ("com.github.driverding.Valash");
+
         ActionEntry[] action_entries = {
             { "about",       this.on_about_action },
             { "preferences", this.on_preferences_action },
@@ -21,26 +27,24 @@ public class Valash.Application : Adw.Application {
     public override void activate () {
         base.activate ();
         
-        Settings settings = new Settings ("com.github.driverding.Valash");
         string url = settings.get_string ("url");
         if (url == "") launch_login_window (); else launch_main_window ();
     }
     
     private void launch_login_window () {
-        var win = new Valash.LoginWindow (this);
+        var win = new Valash.LoginWindow (this, clash, settings);
         win.login_success.connect (on_login_success);
         win.present ();
     }
     
     private void launch_main_window () {
-        Settings settings = new Settings ("com.github.driverding.Valash");
-        Clash.get_instance ().configure (
+        clash.configure (
             settings.get_string ("url"), 
             settings.get_string ("secret"), 
             settings.get_string ("test-url"), 
             settings.get_int ("test-timeout")
         );
-        var win = new Valash.MainWindow (this);
+        var win = new Valash.MainWindow (this, clash, settings);
         win.present ();
     }
 

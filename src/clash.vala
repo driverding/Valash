@@ -262,7 +262,7 @@ public class Valash.ProxyProviderData : GLib.Object, Json.Serializable {
 // ==========================================================================
 
 public class Valash.Clash: Object {
-    private static Clash? instance;
+    // private static Clash? instance;
 
     private Soup.Session session;
     public string url       { get; private set; }
@@ -270,14 +270,14 @@ public class Valash.Clash: Object {
     public string delay_url { get; private set; }
     public int    timeout   { get; private set; }
 
-    private Clash () {
+    construct {
         session = new Soup.Session.with_options ("max_conns", 10, "max_conns_per_host", 10);
     }
 
-    public static Clash get_instance () {
-        if (instance == null) instance = new Clash ();
-        return instance;
-    }
+    // public static Clash get_instance () {
+    //     if (instance == null) instance = new Clash ();
+    //     return instance;
+    // }
 
     public void configure (string url, string secret, string delay_url, int timeout) {
         this.url       = url;

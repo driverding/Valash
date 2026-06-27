@@ -7,21 +7,18 @@ class Valash.ProxiesPage : Gtk.Box {
     [GtkChild]
     private unowned Gtk.Button update_all_button;
 
-    private Clash instance;
-    private Gee.HashMap<string, ProxyGroupRow> group_rows;
-    private Gee.HashMap<string, ProxyProviderRow> provider_rows;
+    private Clash clash;
+    private Gee.HashMap<string, ProxyGroupRow> group_rows = new Gee.HashMap<string, ProxyGroupRow> ();
+    private Gee.HashMap<string, ProxyProviderRow> provider_rows = new Gee.HashMap<string, ProxyProviderRow> ();
 
-    construct {
-        this.instance = Clash.get_instance ();
-        group_rows = new Gee.HashMap<string, ProxyGroupRow> ();
-        provider_rows = new Gee.HashMap<string, ProxyProviderRow> ();
+    public void setup (Clash clash) {
+        this.clash = clash;
     }
-
 
     /* Database */
 
     private async void update_provider (string provider) {
-        yield instance.request_proxy_providers_healthcheck (provider, null);
+        yield clash.request_proxy_providers_healthcheck (provider, null);
         message ("provider healthchecked");
         refresh ();
     }
@@ -34,7 +31,7 @@ class Valash.ProxiesPage : Gtk.Box {
     }
 
     // public async double refresh_delay_individual (string proxy) {
-    //     int delay = yield instance.request_proxy_delay (proxy, null);
+    //     int delay = yield clash.request_proxy_delay (proxy, null);
     //     HealthHistory history = new HealthHistory () { delay = delay, time = new GLib.DateTime.now_local () };
     //     proxies.get (proxy).history.add (history);
     //     return delay;
@@ -51,7 +48,7 @@ class Valash.ProxiesPage : Gtk.Box {
     }
 
     private async void refresh_proxy_groups () {
-        var data = yield instance.request_proxies (null);
+        var data = yield clash.request_proxies (null);
 
         // Diff
         var seen = new Gee.HashSet<string> ();
@@ -62,7 +59,7 @@ class Valash.ProxiesPage : Gtk.Box {
             if (group_rows.has_key (proxy.name)) {
                 group_rows[proxy.name].refresh (data);
             } else {
-                var new_row = new ProxyGroupRow.from_data (proxy.name, data);
+                var new_row = new ProxyGroupRow.from_data (proxy.name, data, clash);
                 proxy_group_group.add (new_row);
                 group_rows.set (proxy.name, new_row);
             }
@@ -78,7 +75,7 @@ class Valash.ProxiesPage : Gtk.Box {
     }
 
     private async void refresh_proxy_providers () {
-        var data = yield instance.request_proxy_providers (null);
+        var data = yield clash.request_proxy_providers (null);
 
         // Diff
         var seen = new Gee.HashSet<string> ();

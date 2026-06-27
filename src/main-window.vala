@@ -11,22 +11,27 @@ public class Valash.MainWindow: Adw.ApplicationWindow {
     [GtkChild]
     private unowned Adw.ToastOverlay overlay;
 
-    private Clash instance;
-    private GLib.Cancellable connections_cancellable;
+    private Clash clash;
+    private Settings settings;
 
+    private GLib.Cancellable connections_cancellable;
     public signal void connections_received (ConnectionsData data);
 
-    public MainWindow (Adw.Application app) {
+    public MainWindow (Adw.Application app, Clash clash, Settings settings) {
         typeof (Valash.Graph).ensure ();
         typeof (Valash.OverviewPage).ensure ();
         typeof (Valash.ProxiesPage).ensure ();
         typeof (Valash.ConnectionPage).ensure ();
 
         Object (application: app);
+
+        this.clash = clash;
+        this.settings = settings;
+        overview_page.setup (clash);
+        proxies_page.setup (clash);
     }
 
     construct {
-        this.instance = Clash.get_instance ();
         this.connections_cancellable = new GLib.Cancellable ();
 
         connections_received.connect (overview_page.on_connections_received);
@@ -38,14 +43,13 @@ public class Valash.MainWindow: Adw.ApplicationWindow {
     }
 
     private async void request_connections () {
-        ConnectionsData response = yield instance.request_connections (connections_cancellable);
+        ConnectionsData response = yield clash.request_connections (connections_cancellable);
         connections_received (response);
     }
 
     [GtkCallback]
     private void on_stack_notify_visible_child (GLib.Object sender, GLib.ParamSpec pspec) {
         if (stack.visible_child == proxies_page) {
-            // stderr.printf ("Matched");
             proxies_page.refresh ();
         }
     }

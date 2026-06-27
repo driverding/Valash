@@ -2,18 +2,20 @@
 public class Valash.LoginWindow : Adw.ApplicationWindow {
     [GtkChild]
     private unowned Adw.EntryRow address_entry;
-
     [GtkChild]
     private unowned Adw.PasswordEntryRow password_entry;
-
     [GtkChild]
     private unowned Gtk.Button connect_button;
-
     [GtkChild]
     private unowned Adw.ToastOverlay overlay;
 
-    public LoginWindow (Adw.Application app) {
+    private Clash clash;
+    private Settings settings;
+
+    public LoginWindow (Adw.Application app, Clash clash, Settings settings) {
         Object (application: app);
+        this.clash = clash;
+        this.settings = settings;
     }
 
     [GtkCallback]
@@ -30,9 +32,8 @@ public class Valash.LoginWindow : Adw.ApplicationWindow {
     }
     
     private async void test_validity (string url, string secret) {
-        Clash instance = Clash.get_instance ();
         string error;
-        bool validity = yield instance.test_validity (url, secret, out error);
+        bool validity = yield clash.test_validity (url, secret, out error);
         if (validity) {
             record_login_info (url, secret);
             login_success ();
@@ -43,7 +44,6 @@ public class Valash.LoginWindow : Adw.ApplicationWindow {
     }
     
     private void record_login_info (string url, string secret) {
-        Settings settings = new Settings ("com.github.driverding.Valash");
         settings.set_string ("url", url);
         settings.set_string ("secret", secret);
     }
