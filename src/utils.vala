@@ -10,12 +10,12 @@ namespace Valash {
         return "%.1f %s".printf (speed, units[index]);
     }
 
-    public string camel_to_snake (string camel_case) {
+    public string camel_to_kebab (string camel_case) {
         StringBuilder result = new StringBuilder ();
         for (int i = 0; i < camel_case.length; i += 1) {
             char c = camel_case[i];
             if (c.isupper ()) {
-                result.append_unichar ('_');
+                result.append_unichar ('-');
             }
             result.append_unichar (c.tolower ());
         }
