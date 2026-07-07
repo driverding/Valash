@@ -13,6 +13,7 @@ class Valash.ProxiesPage : Gtk.Box {
 
     public void initialize (Clash clash) {
         this.clash = clash;
+        this.refresh ();
     }
 
     /* Database */
@@ -43,18 +44,6 @@ class Valash.ProxiesPage : Gtk.Box {
             });
         }
     }
-
-    // public async double refresh_delay_individual (string proxy) {
-    //     int delay = yield clash.request_proxy_delay (proxy, null);
-    //     HealthHistory history = new HealthHistory () { delay = delay, time = new GLib.DateTime.now_local () };
-    //     proxies.get (proxy).history.add (history);
-    //     return delay;
-    // }
-
-    // public async void refresh_group_delay (string group) {
-
-        // Use a better way of handling instead of reconstruct UI
-    // }
 
     public void refresh () { // having "all" means selectable
         refresh_proxy_groups.begin ();

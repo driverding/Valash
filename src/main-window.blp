@@ -20,7 +20,7 @@ menu window_menu {
 
 template $ValashMainWindow : Adw.ApplicationWindow {
   title: _("Valash");
-  default-height: 620;
+  default-height: 680;
   default-width: 800;
 
   content: Adw.ToolbarView {
@@ -47,7 +47,7 @@ template $ValashMainWindow : Adw.ApplicationWindow {
 
     Adw.ToastOverlay overlay {
       Adw.ViewStack stack {
-        notify::visible-child => $on_stack_notify_visible_child ();
+        // notify::visible-child => $on_stack_notify_visible_child ();
         Adw.ViewStackPage {
           title: _("Overview");
           icon-name: "network-wireless-hotspot-symbolic";

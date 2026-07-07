@@ -49,12 +49,12 @@ public class Valash.MainWindow: Adw.ApplicationWindow {
         connections_received (response);
     }
 
-    [GtkCallback]
-    private void on_stack_notify_visible_child (GLib.Object sender, GLib.ParamSpec pspec) {
-        if (stack.visible_child == proxies_page) {
-            proxies_page.refresh ();
-        }
-    }
+    // [GtkCallback]
+    // private void on_stack_notify_visible_child (GLib.Object sender, GLib.ParamSpec pspec) {
+    //     if (stack.visible_child == proxies_page) {
+    //         proxies_page.refresh ();
+    //     }
+    // }
 
     [GtkCallback]
     private void on_refresh_button_clicked () {
