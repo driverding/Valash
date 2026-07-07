@@ -1,16 +1,14 @@
 using Gtk 4.0;
 using Adw 1;
 
-template $ValashOverviewPage : Gtk.Box {
-
+template $ValashOverviewPage: Gtk.Box {
   Gtk.ScrolledWindow {
-
     Adw.Clamp {
-      maximum-size: 600;
+      maximum-size: 1280;
+      tightening-threshold: 10;
       margin-start: 16;
       margin-end: 16;
       margin-bottom: 16;
-
 
       Gtk.Box {
         orientation: vertical;
@@ -38,7 +36,6 @@ template $ValashOverviewPage : Gtk.Box {
               Gtk.Box {
                 orientation: vertical;
                 hexpand: true;
-
                 spacing: 4;
 
                 Gtk.Frame {
@@ -49,11 +46,7 @@ template $ValashOverviewPage : Gtk.Box {
                   $ValashGraph download_graph {
                     hexpand: true;
                     vexpand: true;
-
                     data_length: 50;
-                    // stroke_color: "rgba(32, 32, 128, 1.0)";
-                    // fill_color: "rgba(32, 32, 128, 0.6)";
-                    // background_color: "rgba(0, 0, 0, 0.0)";
                   }
                 }
 
@@ -63,7 +56,9 @@ template $ValashOverviewPage : Gtk.Box {
                   halign: start;
                   ellipsize: middle;
 
-                  styles ["subtitle"]
+                  styles [
+                    "subtitle",
+                  ]
                 }
 
                 Gtk.Label download_speed_label {
@@ -87,14 +82,9 @@ template $ValashOverviewPage : Gtk.Box {
                   $ValashGraph upload_graph {
                     hexpand: true;
                     content-height: 160;
-
                     data_length: 50;
-                    // stroke_color: "rgba(32, 32, 128, 1.0)";
-                    // fill_color: "rgba(32, 32, 128, 0.6)";
-                    // background_color: "rgba(0, 0, 0, 0.0)";
                   }
                 }
-
 
                 Gtk.Label {
                   label: _("Upload Speed");
@@ -102,7 +92,9 @@ template $ValashOverviewPage : Gtk.Box {
                   halign: start;
                   ellipsize: middle;
 
-                  styles ["subtitle"]
+                  styles [
+                    "subtitle",
+                  ]
                 }
 
                 Gtk.Label upload_speed_label {
@@ -136,14 +128,15 @@ template $ValashOverviewPage : Gtk.Box {
                 hexpand: true;
                 spacing: 4;
 
-
                 Gtk.Label {
                   label: _("Total Downloads");
                   hexpand: true;
                   halign: start;
                   ellipsize: middle;
 
-                  styles ["subtitle"]
+                  styles [
+                    "subtitle",
+                  ]
                 }
 
                 Gtk.Label total_downloads_label {
@@ -159,14 +152,15 @@ template $ValashOverviewPage : Gtk.Box {
                 hexpand: true;
                 spacing: 4;
 
-
                 Gtk.Label {
                   label: _("Total Uploads");
                   hexpand: true;
                   halign: start;
                   ellipsize: middle;
 
-                  styles ["subtitle"]
+                  styles [
+                    "subtitle",
+                  ]
                 }
 
                 Gtk.Label total_uploads_label {
@@ -201,14 +195,15 @@ template $ValashOverviewPage : Gtk.Box {
                 hexpand: true;
                 spacing: 4;
 
-
                 Gtk.Label {
                   label: _("Connections Count");
                   hexpand: true;
                   halign: start;
                   ellipsize: middle;
 
-                  styles ["subtitle"]
+                  styles [
+                    "subtitle",
+                  ]
                 }
 
                 Gtk.Label connections_count_label {
@@ -224,14 +219,15 @@ template $ValashOverviewPage : Gtk.Box {
                 hexpand: true;
                 spacing: 4;
 
-
                 Gtk.Label {
                   label: _("Memory Usage");
                   hexpand: true;
                   halign: start;
                   ellipsize: middle;
 
-                  styles ["subtitle"]
+                  styles [
+                    "subtitle",
+                  ]
                 }
 
                 Gtk.Label memory_usage_label {
@@ -253,6 +249,12 @@ template $ValashOverviewPage : Gtk.Box {
             subtitle: _("Emulate a virtual network interface");
             notify::active => $on_tun_switch_notify_active ();
           }
+
+          Adw.SwitchRow {
+            title: _("Enable Global Policy");
+            subtitle: _("Target all connections to GLOBAL proxy");
+            notify::active => $on_global_switch_notify_active ();
+          }
         }
 
         Gtk.Box {
@@ -262,13 +264,13 @@ template $ValashOverviewPage : Gtk.Box {
           Gtk.Button {
             label: _("Reload Config");
             hexpand: true;
-            clicked => $on_reload_config_button_clicked ();
+            clicked => $on_reload_config_button_clicked();
           }
 
           Gtk.Button {
             label: _("Restart Kernel");
             hexpand: true;
-            clicked => $on_restart_button_clicked ();
+            clicked => $on_restart_button_clicked();
           }
         }
       }

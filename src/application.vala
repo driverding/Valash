@@ -1,3 +1,13 @@
+/*
+ * Copyright (C) 2026 DriverDing
+ *
+ * This program is free software: you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License as published by the Free Software
+ * Foundation, either version 3 of the License, or (at your option) any later
+ * version. See http://www.gnu.org/copyleft/gpl.html the full text of the
+ * license.
+ */
+
 public class Valash.Application : Adw.Application {
     public Clash    clash    { get; construct; }
     public Settings settings { get; construct; }
@@ -38,30 +48,27 @@ public class Valash.Application : Adw.Application {
     }
     
     private void launch_main_window () {
-        clash.configure (
-            settings.get_string ("url"), 
-            settings.get_string ("secret"), 
-            settings.get_string ("test-url"), 
-            settings.get_int ("test-timeout")
-        );
+        clash.configure (settings.get_string ("url"), 
+                         settings.get_string ("secret"), 
+                         settings.get_string ("test-url"), 
+                         settings.get_int ("test-timeout"));
         var win = new Valash.MainWindow (this, clash, settings);
         win.present ();
     }
 
     private void on_login_success () {
-        message ("login_success signal received");
         this.active_window.destroy ();
         launch_main_window ();
     }
     
     private void relogin () {
-        message ("app.relogin action activated");
         this.active_window.destroy ();
         launch_login_window ();
     }
 
     private void on_preferences_action () {
-        message ("app.preferences action activated");
+        // var dialog = new PreferencesDialog ();
+        // dialog.present (this.active_window);
     }
     
     private void on_about_action () {

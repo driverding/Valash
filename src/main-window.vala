@@ -18,17 +18,19 @@ public class Valash.MainWindow: Adw.ApplicationWindow {
     public signal void connections_received (ConnectionsData data);
 
     public MainWindow (Adw.Application app, Clash clash, Settings settings) {
-        typeof (Valash.Graph).ensure ();
-        typeof (Valash.OverviewPage).ensure ();
-        typeof (Valash.ProxiesPage).ensure ();
-        typeof (Valash.ConnectionPage).ensure ();
-
         Object (application: app);
 
         this.clash = clash;
         this.settings = settings;
-        overview_page.setup (clash);
-        proxies_page.setup (clash);
+        overview_page.initialize (clash);
+        proxies_page.initialize (clash);
+    }
+
+    static construct {
+        typeof (Valash.Graph).ensure ();
+        typeof (Valash.OverviewPage).ensure ();
+        typeof (Valash.ProxiesPage).ensure ();
+        typeof (Valash.ConnectionPage).ensure ();
     }
 
     construct {
@@ -50,6 +52,16 @@ public class Valash.MainWindow: Adw.ApplicationWindow {
     [GtkCallback]
     private void on_stack_notify_visible_child (GLib.Object sender, GLib.ParamSpec pspec) {
         if (stack.visible_child == proxies_page) {
+            proxies_page.refresh ();
+        }
+    }
+
+    [GtkCallback]
+    private void on_refresh_button_clicked () {
+        var visible = stack.visible_child;
+        if (visible == overview_page) {
+            overview_page.refresh ();
+        } else if (visible == proxies_page) {
             proxies_page.refresh ();
         }
     }

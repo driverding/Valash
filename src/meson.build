@@ -2,6 +2,7 @@ srcs = [
   'main.vala',
   'application.vala',
   
+  'data.vala',
   'clash.vala',
   'utils.vala',
   
@@ -9,6 +10,7 @@ srcs = [
   'proxy-button-box.vala',
   'proxy-group-row.vala',
   'proxy-provider-row.vala',
+  'preference-dialog.vala',
   
   'login-window.vala',
   'main-window.vala',

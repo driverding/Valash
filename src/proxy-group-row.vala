@@ -74,5 +74,35 @@ class Valash.ProxyGroupRow : Adw.ExpanderRow {
     }
 
     [GtkCallback]
-    private void on_delay_check_button_clicked (Gtk.Button source) {}
+    private void on_delay_check_button_clicked (Gtk.Button source) {
+        check_all_delays.begin ();
+    }
+
+    public async void check_all_delays () {
+        //  var keys = new Gee.ArrayList<string> ();
+        //  keys.add_all (proxy_buttons.keys);
+        //  int remaining = keys.size;
+        //  if (remaining == 0) return;
+
+        //  var resume = check_all_delays.callback;
+        //  foreach (string name in keys) {
+        //      var proxy = name;
+        //      clash.request_proxy_delay.begin (proxy, null, (obj, res) => {
+        //          try {
+        //              int delay = clash.request_proxy_delay.end (res);
+        //              if (proxy_buttons.has_key (proxy))
+        //                  proxy_buttons[proxy].delay = delay;
+        //          } catch (Error e) {
+        //              GLib.warning (e.message);
+        //          }
+        //          remaining--;
+        //          if (remaining == 0)
+        //              resume ();
+        //      });
+        //  }
+
+        //  yield;
+        //  message ("delay check completed for group: %s", proxy_group_name);
+        message ("TODO");
+    }
 }

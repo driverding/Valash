@@ -11,7 +11,7 @@ class Valash.ProxiesPage : Gtk.Box {
     private Gee.HashMap<string, ProxyGroupRow> group_rows = new Gee.HashMap<string, ProxyGroupRow> ();
     private Gee.HashMap<string, ProxyProviderRow> provider_rows = new Gee.HashMap<string, ProxyProviderRow> ();
 
-    public void setup (Clash clash) {
+    public void initialize (Clash clash) {
         this.clash = clash;
     }
 
@@ -25,9 +25,23 @@ class Valash.ProxiesPage : Gtk.Box {
 
     private async void update_all () {
         update_all_button.sensitive = false;
+        int remaining = group_rows.size;
 
-        message ("update all todo");
-        update_all_button.sensitive = true;
+        foreach (ProxyGroupRow group in group_rows.values) {
+            group.check_all_delays.begin ((obj, res) => {
+                try {
+                    group.check_all_delays.end (res);
+                } catch (Error e) {
+                    warning (e.message);
+                }
+                remaining -= 1;
+                if (remaining == 0) {
+                    refresh ();
+                    update_all_button.sensitive = true;
+                    message ("update all completed");
+                }
+            });
+        }
     }
 
     // public async double refresh_delay_individual (string proxy) {
@@ -86,7 +100,7 @@ class Valash.ProxiesPage : Gtk.Box {
             if (provider_rows.has_key (provider.name)) {
                 provider_rows[provider.name].refresh (provider);
             } else {
-                var new_row = new ProxyProviderRow.from_data (provider);
+                var new_row = new ProxyProviderRow.from_data (provider, clash);
                 proxy_provider_group.add (new_row);
                 provider_rows.set (provider.name, new_row);
             }

@@ -8,12 +8,14 @@ class Valash.ProxyProviderRow : Adw.ExpanderRow {
     private unowned Gtk.FlowBox flow_box;
 
     private Gee.HashMap<string, ProxyButtonBox> proxy_buttons;
+    private Clash clash;
 
     construct {
         proxy_buttons = new Gee.HashMap<string, ProxyButtonBox> ();
     }
 
-    public ProxyProviderRow.from_data (ProxyProviderData data) {
+    public ProxyProviderRow.from_data (ProxyProviderData data, Clash clash) {
+        this.clash = clash;
         refresh (data);
     }
 
@@ -73,10 +75,26 @@ class Valash.ProxyProviderRow : Adw.ExpanderRow {
         right_label.label = to_right_label;
     }
 
-    public void selecting_handler (string proxy_name) {}
-    public void delay_checking_handler (string proxy_name) {}
+    public void selecting_handler (string proxy_name) { }
+        // Selection is not applicable for proxies inside a provider
+
+    public void delay_checking_handler (string proxy_name) {
+        this.update_proxy.begin (proxy_name);
+    }
+
+    private async void update_proxy (string proxy_name) {
+        int delay = yield clash.request_proxy_delay (proxy_name, null);
+        this.proxy_buttons[proxy_name].delay = delay;
+        message ("proxy delay checked: %d", delay);
+    }
 
     [GtkCallback]
     private void on_health_check_button_clicked (Gtk.Button source) {
+        health_check.begin ();
+    }
+
+    private async void health_check () {
+        yield clash.request_proxy_providers_healthcheck (this.title, null);
+        message ("health check completed for provider: %s", this.title);
     }
 }

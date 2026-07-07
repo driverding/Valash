@@ -19,7 +19,7 @@ class Valash.OverviewPage : Gtk.Box {
 
     private Clash clash;
 
-    public void setup (Clash clash) {
+    public void initialize (Clash clash) {
         this.clash = clash;
         start_connections ();
     }
@@ -80,6 +80,14 @@ class Valash.OverviewPage : Gtk.Box {
         tun_switch_lock = false;
     }
 
+    public void refresh () {
+        if (clash.traffic_cancellable != null)
+            clash.traffic_cancellable.cancel ();
+        if (clash.memory_cancellable != null)
+            clash.memory_cancellable.cancel ();
+        start_connections ();
+    }
+
     [GtkCallback]
     private void on_reload_config_button_clicked (Gtk.Button source) {
         clash.send_reload ();
@@ -88,6 +96,11 @@ class Valash.OverviewPage : Gtk.Box {
     [GtkCallback]
     private void on_restart_button_clicked (Gtk.Button source) {
         clash.send_restart ();
+    }
+
+    [GtkCallback]
+    private void on_global_switch_notify_active (GLib.Object sender, GLib.ParamSpec pspec) {
+        message ("Global switched activated");
     }
 }
 
