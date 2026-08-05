@@ -1,5 +1,65 @@
+/*
+ * Copyright (C) 2026 DriverDing
+ * This software is licensed under the GNU General Public License (version 3 or later).
+ */
+
+public class Valash.ProxyProviderModel : Object {
+    public string provider_name      { get; construct; }
+    public string vehicle_type       { get; construct; }
+    public double upload             { get; set; }
+    public double download           { get; set; }
+    public double total              { get; set; }
+    public GLib.DateTime? expire     { get; set; }
+    public GLib.DateTime? updated_at { get; set; }
+    public GLib.ListModel proxies    { get; construct; } /* typeof: ProxyModel */
+
+    public ProxyProviderModel.from_json (ProxyProviderData data) {
+        var proxy_store = new GLib.ListStore (typeof (ProxyModel));
+
+        Object (provider_name: data.name,
+                vehicle_type: data.vehicle_type,
+                proxies: proxy_store);
+
+        sync_from_json (data);
+    }
+
+    public void sync_from_json (ProxyProviderData data) {
+        if (data.subscription_info != null) {
+            this.upload = data.subscription_info.upload;
+            this.download = data.subscription_info.download;
+            this.total = data.subscription_info.total;
+            this.expire = data.subscription_info.expire;
+        }
+        this.updated_at = data.updated_at;
+
+        /* Diff the proxies */
+        var store = (GLib.ListStore) this.proxies;
+
+        Gee.HashSet<string> to_append = new Gee.HashSet<string> ();
+        foreach (string id in data.proxies.keys) {
+            to_append.add (id);
+        }
+
+        /* Remove Removed Proxies, Sync Existing Proxies */
+        for (int i = (int) store.get_n_items () - 1; i >= 0; i -= 1) {
+            ProxyModel item = (ProxyModel) store.get_item (i);
+            if (!data.proxies.has_key (item.proxy_name)) {
+                store.remove (i);
+            } else {
+                item.sync_from_json (data.proxies[item.proxy_name]);
+                to_append.remove (item.proxy_name);
+            }
+        }
+
+        /* Append New Proxies */
+        foreach (string id in to_append) {
+            store.append (new ProxyModel.from_json (data.proxies[id]));
+        }
+    }
+}
+
 [GtkTemplate (ui = "/com/github/driverding/Valash/proxy-provider-row.ui")]
-class Valash.ProxyProviderRow : Adw.ExpanderRow {
+public class Valash.ProxyProviderRow : Adw.ExpanderRow {
     [GtkChild]
     private unowned Gtk.ProgressBar usage_progress_bar;
     [GtkChild]
@@ -7,94 +67,59 @@ class Valash.ProxyProviderRow : Adw.ExpanderRow {
     [GtkChild]
     private unowned Gtk.FlowBox flow_box;
 
-    private Gee.HashMap<string, ProxyButtonBox> proxy_buttons;
-    private Clash clash;
+    public ProxyProviderModel model { get; construct; }
+
+    class construct {
+        install_action ("group.select_proxy", "s", (widget, action_name, parameter) => {
+            message ("provider group.select_proxy triggered");
+            return; /* ProviderRow doesn't select proxy */
+        });
+    }
 
     construct {
-        proxy_buttons = new Gee.HashMap<string, ProxyButtonBox> ();
+        model.bind_property ("provider_name", this, "title", BindingFlags.SYNC_CREATE);
+
+        model.proxies.items_changed.connect ((positions, removed, added) => { refresh (); });
+        model.notify.connect (refresh); /* Using a single notify seems simpler, hope this works well */
+
+        flow_box.bind_model (model.proxies, (obj) => {
+            return new ProxyButtonBox ((ProxyModel) obj);
+        });
     }
 
-    public ProxyProviderRow.from_data (ProxyProviderData data, Clash clash) {
-        this.clash = clash;
-        refresh (data);
+    public ProxyProviderRow (ProxyProviderModel model) {
+        Object (model: model);
     }
 
-    public void refresh (ProxyProviderData data) {
-        // Left Label
-        this.title = data.name;
-        this.subtitle =
-            data.vehicle_type + " - "
-            + _("%d Proxies").printf (data.proxies.size) + " - "
-            + data.updated_at.format (_("Updated on %b. %-d"));
-
-        // Proxies - Diff
-        var seen = new Gee.HashSet<string> ();
-
-        foreach (ProxyData proxy in data.proxies.values) {
-            seen.add (proxy.id);
-            if (proxy_buttons.has_key (proxy.id)) {
-                proxy_buttons[proxy.id].refresh (proxy);
-            } else {
-                var new_button = new ProxyButtonBox.from_data (proxy,
-                                                               this.selecting_handler,
-                                                               this.delay_checking_handler);
-                flow_box.append (new_button);
-                proxy_buttons.set (proxy.id, new_button);
-            }
+    private void refresh () {
+        /* subtitle */
+        this.subtitle = _("%s - %u Proxies").printf (model.vehicle_type, model.proxies.get_n_items ());
+        if (model.updated_at != null) {
+            this.subtitle += model.updated_at.format (_(" - Updated on %b. %-d"));
         }
 
-        foreach (string id in proxy_buttons.keys) {
-            if (!seen.contains (id)) {
-                var button_to_remove = proxy_buttons[id];
-                flow_box.remove (button_to_remove);
-                proxy_buttons.unset (id);
-            }
-        }
-
-        // Right Label
+        /* right_label and usage_progress_bar */
         string to_right_label = "";
-        if (data.subscription_info != null) {
-            if (data.subscription_info.expire != null) {
-                to_right_label = data.subscription_info.expire.format ("Expire on %Y %b. %-d");
-            }
 
-            if (data.subscription_info.download != 0 && data.subscription_info.upload != 0 && data.subscription_info.total != 0) {
-                double available = data.subscription_info.total - data.subscription_info.download - data.subscription_info.upload;
-                double total = data.subscription_info.total;
-
-                usage_progress_bar.visible = true;
-                usage_progress_bar.fraction = available / total;
-
-                if (to_right_label != "")
-                    to_right_label += " - ";
-                to_right_label += format_value (available) + " / " + format_value (total);
-            } else {
-                usage_progress_bar.visible = false;
-            }
+        if (model.expire != null) {
+            to_right_label = model.expire.format ("Expire on %Y %b. %-d");
         }
+
+        if (model.download != 0 && model.upload != 0 && model.total != 0) {
+            double available = model.total - model.download - model.upload;
+            double total = model.total;
+
+            usage_progress_bar.visible = true;
+            usage_progress_bar.fraction = available / total;
+
+            if (to_right_label != "") {
+                to_right_label += " - ";
+            }
+            to_right_label += format_value (available) + " / " + format_value (total);
+        } else {
+            usage_progress_bar.visible = false;
+        }
+
         right_label.label = to_right_label;
-    }
-
-    public void selecting_handler (string proxy_name) { }
-        // Selection is not applicable for proxies inside a provider
-
-    public void delay_checking_handler (string proxy_name) {
-        this.update_proxy.begin (proxy_name);
-    }
-
-    private async void update_proxy (string proxy_name) {
-        int delay = yield clash.request_proxy_delay (proxy_name, null);
-        this.proxy_buttons[proxy_name].delay = delay;
-        message ("proxy delay checked: %d", delay);
-    }
-
-    [GtkCallback]
-    private void on_health_check_button_clicked (Gtk.Button source) {
-        health_check.begin ();
-    }
-
-    private async void health_check () {
-        yield clash.request_proxy_providers_healthcheck (this.title, null);
-        message ("health check completed for provider: %s", this.title);
     }
 }

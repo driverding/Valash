@@ -2,13 +2,15 @@ using Gtk 4.0;
 using Adw 1;
 
 template $ValashProxyGroupRow : Adw.ExpanderRow {
+  styles ["no-hover-nested"]
+
+  [suffix]
   Gtk.Button delay_check_button {
-    label: _("Delay Check and Update");
-    clicked => $on_delay_check_button_clicked ();
-    margin-start: 8;
+    icon-name: "view-refresh-symbolic";
+    tooltip-text: _("Refresh The Proxy Group");
     margin-top: 8;
-    margin-end: 8;
     margin-bottom: 8;
+    clicked => $on_delay_check_button_clicked ();
   }
 
   Gtk.FlowBox flow_box {

@@ -1,108 +1,87 @@
+/*
+ * Copyright (C) 2026 DriverDing
+ * This software is licensed under the GNU General Public License (version 3 or later).
+ */
+
+public class Valash.ProxyGroupModel : Object {
+    public string proxy_group_name { get; construct; }
+    public GLib.ListModel proxies  { get; construct; } /* typeof: ProxyModel */
+
+    public ProxyGroupModel.from_json (ProxyData group_data, Gee.HashMap<string, ProxyData> all_proxies) {
+        var proxy_store = new GLib.ListStore (typeof (ProxyModel));
+        Object (proxy_group_name: group_data.name,
+                proxies: proxy_store);
+        this.sync_from_json (group_data, all_proxies);
+    }
+
+    public void sync_from_json (ProxyData group_data, Gee.HashMap<string, ProxyData> all_proxies) {
+        var store = (GLib.ListStore) this.proxies;
+
+        Gee.HashSet<string> to_append = new Gee.HashSet<string> ();
+        foreach (string name in group_data.all) {
+            to_append.add (name);
+        }
+
+        /* Remove Removed Proxies, Sync Existing Proxies */
+        for (int i = (int) store.get_n_items () - 1; i >= 0; i -= 1) {
+            ProxyModel item = (ProxyModel) store.get_item (i);
+            if (!to_append.contains (item.proxy_name)) {
+                store.remove (i);
+            } else {
+                item.sync_from_json (all_proxies[item.proxy_name]);
+                to_append.remove (item.proxy_name);
+            }
+        }
+
+        /* Append New Proxies */
+        foreach (string name in to_append) {
+            store.append (new ProxyModel.from_json (all_proxies[name]));
+        }
+
+        /* Set selected proxy */
+        for (uint i = 0; i < store.get_n_items (); i++) {
+            ProxyModel item = (ProxyModel) store.get_item (i);
+            item.selected = item.proxy_name == group_data.now;
+        }
+    }
+}
+
 [GtkTemplate (ui = "/com/github/driverding/Valash/proxy-group-row.ui")]
-class Valash.ProxyGroupRow : Adw.ExpanderRow {
+public class Valash.ProxyGroupRow : Adw.ExpanderRow {
     [GtkChild]
     private unowned Gtk.FlowBox flow_box;
-    
-    public string proxy_group_name { get; construct; }
-    private Clash clash;
-    private Gee.HashMap<string, ProxyButtonBox> proxy_buttons = new Gee.HashMap<string, ProxyButtonBox> ();
-    private string selected;
 
-    public ProxyGroupRow.from_data (string name, Gee.HashMap<string, ProxyData> data, Clash clash) {
-        Object (proxy_group_name: name);
-        this.clash = clash;
-        refresh (data);
+    public ProxyGroupModel model { get; construct; }
+
+    class construct {
+        install_action ("group.select_proxy", "s", (widget, action_name, parameter) => {
+            var self = widget as ProxyGroupRow;
+            var args = new Variant.tuple ({
+                new Variant.string (self.model.proxy_group_name),
+                new Variant.string (parameter.get_string ())
+            });
+            self.activate_action ("clash.select_proxy", "ss", args);
+        });
     }
 
-    public void refresh (Gee.HashMap<string, ProxyData> data) {
-        this.title = proxy_group_name;
-        this.subtitle = _("%d Proxies").printf (data[proxy_group_name].all.length);
-
-        // Proxies - Diff
-        var seen = new Gee.HashSet<string> ();
-
-        foreach (string child_name in data[proxy_group_name].all) {
-            seen.add (child_name);
-            if (proxy_buttons.has_key (child_name)) {
-                proxy_buttons[child_name].refresh (data[child_name]);
-                proxy_buttons[child_name].selected = false;
-            } else {
-                var new_button = new ProxyButtonBox.from_data (data[child_name],
-                                                               this.selecting_handler,
-                                                               this.delay_checking_handler);
-                flow_box.append (new_button);
-                proxy_buttons.set (child_name, new_button);
-            }
-        }
-
-        foreach (string child_name in proxy_buttons.keys) {
-            if (!seen.contains (child_name)) {
-                var button_to_remove = proxy_buttons[child_name];
-                flow_box.remove (button_to_remove);
-                proxy_buttons.unset (child_name);
-            }
-        }
-
-        // Highlight Selected
-        this.selected = data[proxy_group_name].now;
-        proxy_buttons[this.selected].selected = true;
+    construct {
+        model.bind_property ("proxy_group_name", this, "title", BindingFlags.SYNC_CREATE);
+        model.proxies.items_changed.connect ((positions, removed, added) => { refresh_subtitle (); });
+        flow_box.bind_model (model.proxies, (obj) => {
+            return new ProxyButtonBox ((ProxyModel) obj);
+        });
     }
 
-    public void selecting_handler (string proxy_name) {
-        this.select_proxy.begin (proxy_name);
+    public ProxyGroupRow (ProxyGroupModel model) {
+        Object (model: model);
     }
 
-    private async void select_proxy (string proxy_name) {
-        bool result = yield clash.set_proxy (proxy_group_name, proxy_name, null);
-        if (result) {
-            this.proxy_buttons[this.selected].selected = false;
-            this.selected = proxy_name;
-            this.proxy_buttons[proxy_name].selected = true;
-        } else {
-            GLib.warning ("Select Proxy Failure");
-        }
-    }
-
-    public void delay_checking_handler (string proxy_name) {
-        this.update_proxy.begin (proxy_name);
-    }
-
-    private async void update_proxy (string proxy_name) {
-        int delay = yield clash.request_proxy_delay (proxy_name, null);
-        this.proxy_buttons[proxy_name].delay = delay;
-        message ("proxy delay checked: %d", delay);
+    private void refresh_subtitle () {
+        this.subtitle = _("%u Proxies").printf (model.proxies.get_n_items ());
     }
 
     [GtkCallback]
     private void on_delay_check_button_clicked (Gtk.Button source) {
-        check_all_delays.begin ();
-    }
-
-    public async void check_all_delays () {
-        //  var keys = new Gee.ArrayList<string> ();
-        //  keys.add_all (proxy_buttons.keys);
-        //  int remaining = keys.size;
-        //  if (remaining == 0) return;
-
-        //  var resume = check_all_delays.callback;
-        //  foreach (string name in keys) {
-        //      var proxy = name;
-        //      clash.request_proxy_delay.begin (proxy, null, (obj, res) => {
-        //          try {
-        //              int delay = clash.request_proxy_delay.end (res);
-        //              if (proxy_buttons.has_key (proxy))
-        //                  proxy_buttons[proxy].delay = delay;
-        //          } catch (Error e) {
-        //              GLib.warning (e.message);
-        //          }
-        //          remaining--;
-        //          if (remaining == 0)
-        //              resume ();
-        //      });
-        //  }
-
-        //  yield;
-        //  message ("delay check completed for group: %s", proxy_group_name);
-        message ("TODO");
+        this.activate_action ("win.request-group-delay-check", "s", model.proxy_group_name);
     }
 }

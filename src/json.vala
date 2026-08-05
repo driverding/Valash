@@ -7,7 +7,7 @@
  * version. See http://www.gnu.org/copyleft/gpl.html the full text of the
  * license.
  */
- 
+
  public class Valash.TrafficChunk : GLib.Object, Json.Serializable {
     public double up         { get; set; }
     public double down       { get; set; }
@@ -93,12 +93,14 @@ public class Valash.ConnectionsData : GLib.Object, Json.Serializable {
         if (property_name == "connections") {
             value = Value (typeof (Gee.HashMap));
             var result = new Gee.HashMap<string, ConnectionData> ();
-            
-            var arr = property_node.get_array ();
-            for (int i = 0; i < arr.get_length (); i += 1) {
-                var node = arr.get_element (i);
-                var data = (ConnectionData) Json.gobject_deserialize (typeof (ConnectionData), node);
-                result.set (data.id, data);
+
+            if (!property_node.is_null ()) {
+                var arr = property_node.get_array ();
+                for (int i = 0; i < arr.get_length (); i += 1) {
+                    var node = arr.get_element (i);
+                    var data = (ConnectionData) Json.gobject_deserialize (typeof (ConnectionData), node);
+                    result.set (data.id, data);
+                }
             }
             value.set_object (result);
             return true;

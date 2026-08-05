@@ -7,3 +7,7 @@ flowbox > flowboxchild {
   border: none;
   box-shadow: none;
 }
+
+.no-hover-nested list.nested row:hover {
+    background: transparent;
+}

@@ -1,0 +1,48 @@
+using Gtk 4.0;
+using Adw 1;
+
+template $ValashPreferencesDialog : Adw.PreferencesDialog {
+  Adw.PreferencesPage {
+    title: _("Common");
+
+    Adw.PreferencesGroup {
+      title: _("General");
+
+      Adw.SpinRow record_length_row {
+        title: _("Record Length");
+        adjustment: Gtk.Adjustment {
+          lower: 5;
+          upper: 200;
+          value: 50;
+        };
+      }
+
+      Adw.SpinRow update_period_row {
+        title: _("Update Period for Connections (ms)");
+        adjustment: Gtk.Adjustment {
+          lower: 100;
+          upper: 10000;
+          value: 1000;
+        };
+      }
+    }
+
+    Adw.PreferencesGroup {
+      title: _("Delay Test");
+
+      Adw.EntryRow test_url_row {
+        title: _("Test URL");
+        show-apply-button: true;
+      }
+
+      Adw.SpinRow test_timeout_row {
+        title: _("Timeout (ms)");
+        adjustment: Gtk.Adjustment {
+          lower: 0;
+          upper: 10000;
+          value: 1000;
+        };
+      }
+    }
+  }
+}

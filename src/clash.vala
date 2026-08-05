@@ -1,36 +1,31 @@
 /*
  * Copyright (C) 2026 DriverDing
- *
- * This program is free software: you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation, either version 3 of the License, or (at your option) any later
- * version. See http://www.gnu.org/copyleft/gpl.html the full text of the
- * license.
+ * This software is licensed under the GNU General Public License (version 3 or later).
  */
 
 public class Valash.Clash: Object {
-    // private static Clash? instance;
-
     private Soup.Session session;
     public string url       { get; private set; }
     public string secret    { get; private set; }
     public string delay_url { get; private set; }
     public int    timeout   { get; private set; }
 
+    public signal void error_encountered (string message);
+
     construct {
         session = new Soup.Session.with_options ("max_conns", 10, "max_conns_per_host", 10);
     }
-
-    // public static Clash get_instance () {
-    //     if (instance == null) instance = new Clash ();
-    //     return instance;
-    // }
 
     public void configure (string url, string secret, string delay_url, int timeout) {
         this.url       = url;
         this.secret    = secret;
         this.delay_url = delay_url;
         this.timeout   = timeout;
+    }
+
+    private inline void warn_error (Error e) {
+        error_encountered (e.message);
+        GLib.warning (e.message);
     }
     
     // Test
@@ -43,8 +38,8 @@ public class Valash.Clash: Object {
             if (content == null) {
                 error = _("NULL response");
                 return false;
-            } else if (content.strip () != "{\"hello\":\"mihomo\"}") {
-                error = _("Unrecognizable response: %s").printf (content);
+            } else if (content.strip () != "{\"hello\":\"mihomo\"}" && content.strip () != "{\"hello\":\"clash\"}") {
+                error = _("Unrecognizable response: %s").printf (content.strip ());
                 return false;
             }
             return true;
@@ -54,16 +49,9 @@ public class Valash.Clash: Object {
             return false;
         }
     }
-    
 
-    public signal void error_encountered (string message);
 
-    private void warn_error (Error e) {
-        error_encountered (e.message);
-        GLib.warning (e.message);
-    }
-
-    // ========================= Traffic =========================
+    /*********************** Traffic ***********************/
     public signal void traffic_received (TrafficChunk traffic);
     public GLib.Cancellable? traffic_cancellable;
 
@@ -102,7 +90,7 @@ public class Valash.Clash: Object {
     }
 
 
-    // ========================= Memory =========================
+    /*********************** Memory ***********************/
     public signal void memory_received (MemoryChunk memory);
     public GLib.Cancellable? memory_cancellable;
 
@@ -141,7 +129,7 @@ public class Valash.Clash: Object {
     }
 
 
-    // ========================= Requests =========================
+    /*********************** Requests ***********************/
     public async ConnectionsData? request_connections (GLib.Cancellable? cancellable) {
         Soup.Message message = new Soup.Message ("GET", this.url + "/connections");
         if (secret != "") message.request_headers.append ("Authorization", @"Bearer $(secret)");

@@ -1,92 +1,72 @@
-namespace Valash {
-    delegate void SelectingProxyHandler (string proxy_name);
-    delegate void DelayCheckingHandler  (string proxy_name);
+/*
+ * Copyright (C) 2026 DriverDing
+ * This software is licensed under the GNU General Public License (version 3 or later).
+ */
+
+public class Valash.ProxyModel : Object {
+    public string proxy_name { get; construct; }
+    public string proxy_type { get; construct; }
+    public double delay      { get; set; }
+    public bool selected     { get; set; }
+
+    public ProxyModel.from_json (ProxyData data) {
+        Object (proxy_name: data.id,
+                proxy_type: data.proxy_type);
+        sync_from_json (data);
+    }
+
+    public void sync_from_json (ProxyData data) {
+        this.delay = data.history.max ((a, b) => {
+            if (a.delay < b.delay) return -1;
+            if (a.delay > b.delay) return 1;
+            return 0;
+        }).delay;
+    }
 }
 
 [GtkTemplate (ui = "/com/github/driverding/Valash/proxy-button-box.ui")]
-class Valash.ProxyButtonBox : Gtk.Box {
-    [GtkChild]
-    private unowned Gtk.Label name_label;
-    [GtkChild]
-    private unowned Gtk.Label proxy_type_label;
-    [GtkChild]
-    private unowned Gtk.Label delay_label;
+public class Valash.ProxyButtonBox : Gtk.Box {
     [GtkChild]
     private unowned Gtk.Button select_button;
     [GtkChild]
-    private unowned Gtk.Button refresh_button;
+    private unowned Gtk.Button delay_check_button;
+    [GtkChild]
+    private unowned Gtk.Label name_label;
+    [GtkChild]
+    private unowned Gtk.Label type_label;
+    [GtkChild]
+    private unowned Gtk.Label delay_label;
 
-    private string proxy_name;
-    private SelectingProxyHandler selecting_handler;
-    private DelayCheckingHandler  delay_checking_handler;
-
-    private bool _selected;
-    public bool selected {
-        get { return this._selected; }
-        set {
-            if (this._selected == value)
-                return;
-            this._selected = value;
-
-            if (value) {
-                select_button.add_css_class ("suggested-action");
-                refresh_button.add_css_class ("suggested-action");
-            } else {
-                select_button.remove_css_class ("suggested-action");
-                refresh_button.remove_css_class ("suggested-action");
-            }
-        }
-    }
-
-    public int delay {
-        set {
-            delay_label.label = value == 0 ? "-" : "%dms".printf (value);
-        }
-    }
-
+    public ProxyModel model { get; construct; }
 
     construct {
-
+        model.bind_property ("proxy_name", name_label, "label", BindingFlags.SYNC_CREATE);
+        model.bind_property ("proxy_type", type_label, "label", BindingFlags.SYNC_CREATE);
+        model.bind_property ("delay", delay_label, "label", BindingFlags.SYNC_CREATE, format_value_transform);
+        model.notify["selected"].connect (refresh_selected_style); /* Change to Adw.bind_property_to_css_class later for libadwaita 1.11 */
     }
 
-    public ProxyButtonBox.from_data (ProxyData data,
-                                     SelectingProxyHandler selecting_handler,
-                                     DelayCheckingHandler delay_checking_handler) {
-        refresh (data);
-        this.selecting_handler = selecting_handler;
-        this.delay_checking_handler = delay_checking_handler;
+    public ProxyButtonBox (ProxyModel model) {
+        Object (model: model);
     }
 
-    public void refresh (ProxyData data) {
-        this.proxy_name = data.name;
-        name_label.label = data.name;
-        proxy_type_label.label = data.proxy_type;
-        this.delay = get_latest_delay (data.history);
-    }
-
-    private int get_latest_delay (Gee.ArrayList<HealthHistory> histories) {
-        if (histories.is_empty)
-            return 0;
-
-        int index = 0;
-        GLib.DateTime latest = histories[0].time;
-
-        for (int i = 1; i < histories.size; i += 1) {
-            if (latest.compare (histories[i].time) < 0) {
-                index = i;
-                latest = histories[i].time;
-            }
+    private void refresh_selected_style () {
+        if (model.selected) {
+            select_button.add_css_class ("suggested-action");
+            delay_check_button.add_css_class ("suggested-action");
+        } else {
+            select_button.remove_css_class ("suggested-action");
+            delay_check_button.remove_css_class ("suggested-action");
         }
-        return histories[index].delay;
     }
 
     [GtkCallback]
     private void on_select_button_clicked (Gtk.Button source) {
-        selecting_handler (this.proxy_name);
+        this.activate_action ("group.select-proxy", "s", model.proxy_name);
     }
 
     [GtkCallback]
-    private void on_refresh_button_clicked (Gtk.Button source) {
-        delay_checking_handler (this.proxy_name);
+    private void on_delay_check_button_clicked (Gtk.Button source) {
+        this.activate_action ("clash.request-delay-check", "s", model.proxy_name);
     }
 }

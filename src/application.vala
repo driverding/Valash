@@ -1,11 +1,6 @@
 /*
  * Copyright (C) 2026 DriverDing
- *
- * This program is free software: you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation, either version 3 of the License, or (at your option) any later
- * version. See http://www.gnu.org/copyleft/gpl.html the full text of the
- * license.
+ * This software is licensed under the GNU General Public License (version 3 or later).
  */
 
 public class Valash.Application : Adw.Application {
@@ -37,7 +32,7 @@ public class Valash.Application : Adw.Application {
     public override void activate () {
         base.activate ();
         
-        string url = settings.get_string ("url");
+        string url = settings.get_string ("address");
         if (url == "") launch_login_window (); else launch_main_window ();
     }
     
@@ -48,7 +43,7 @@ public class Valash.Application : Adw.Application {
     }
     
     private void launch_main_window () {
-        clash.configure (settings.get_string ("url"), 
+        clash.configure (settings.get_string ("address"),
                          settings.get_string ("secret"), 
                          settings.get_string ("test-url"), 
                          settings.get_int ("test-timeout"));
@@ -67,8 +62,8 @@ public class Valash.Application : Adw.Application {
     }
 
     private void on_preferences_action () {
-        // var dialog = new PreferencesDialog ();
-        // dialog.present (this.active_window);
+        var dialog = new PreferencesDialog (settings);
+        dialog.present (this.active_window);
     }
     
     private void on_about_action () {

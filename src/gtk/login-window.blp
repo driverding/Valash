@@ -3,7 +3,7 @@ using Adw 1;
 
 template $ValashLoginWindow : Adw.ApplicationWindow {
   title: _("Valash");
-  default-height: 620;
+  default-height: 680;
   default-width: 800;
 
   content: Adw.ToolbarView {
@@ -26,16 +26,14 @@ template $ValashLoginWindow : Adw.ApplicationWindow {
               selection-mode: none;
               margin-bottom: 18;
 
-              styles [
-                "boxed-list",
-              ]
+              styles [ "boxed-list" ]
 
               Adw.EntryRow address_entry {
                 title: _("Address");
                 halign: fill;
               }
 
-              Adw.PasswordEntryRow password_entry {
+              Adw.PasswordEntryRow secret_entry {
                 title: _("Secret");
                 halign: fill;
               }
@@ -44,12 +42,9 @@ template $ValashLoginWindow : Adw.ApplicationWindow {
             Gtk.Button connect_button {
               label: _("Connect");
               halign: center;
-              clicked => $on_connect_button_clicked();
+              clicked => $on_connect_button_clicked ();
 
-              styles [
-                "suggested-action",
-                "pill",
-              ]
+              styles [ "suggested-action", "pill" ]
             }
           }
         }

@@ -1,49 +1,46 @@
-public class Valash.Graph : Gtk.DrawingArea {
-    public uint data_length { get; construct; default = 50; }
-    private Gee.ArrayQueue<double?> data;
+/*
+ * Copyright (C) 2026 DriverDing
+ *
+ * This software is licensed under the GNU General Public License
+ * (version 3 or later).
+ */
 
-    public Graph () {
-        Object ();
-    }
+public class Valash.Graph : Gtk.DrawingArea {
+    public Gee.ArrayQueue<double?>? series { get; set; }
 
     construct {
-        data = new Gee.ArrayQueue<double?> ();
-        for (int i = 0; i < data_length; i += 1) {
-            data.offer (0);
-        }
         set_draw_func (draw_graph);
     }
 
-    public void push_data_point (double point) {
-        this.data.poll ();
-        this.data.offer (point);
+    public void refresh () {
         this.queue_draw ();
     }
 
-    public double get_max_value () {
-        double max = 0;
-        foreach (double point in data) {
-            max = point > max ? point : max;
-        }
-        return max;
-    }
-
     private void draw_graph (Gtk.DrawingArea area, Cairo.Context cr, int width, int height) {
+        if (series == null) {
+            warning ("series is NULL");
+            return;
+        } else if (series.size <= 1) {
+            message ("series is too short to plot");
+            return;
+        }
+
         var style_manager = Adw.StyleManager.get_default ();
         Gdk.RGBA stroke_color = style_manager.get_accent_color_rgba ();
         Gdk.RGBA fill_color = stroke_color.copy ();
         fill_color.alpha = 0.4f;
 
-        double step = (double) width / (double) (data_length - 1);
-        // Use 100kbps as default max value
-        double max = get_max_value ();
-        double scale = (double) height / (double) (max > 102400 ? max : 102400);
+        uint length = series.size;
+
+        double step = (double) width / (double) (length - 1); /* I don't think length will = 1 */
+        double max = series.max ((a, b) => { return (int) (a - b); });
+        double scale = (double) height / (double) (max > 102400 ? max : 102400); /* Use 100kbps as default max value */
         double x = 0;
 
         Gdk.cairo_set_source_rgba (cr, stroke_color);
         cr.set_line_width (2.0);
-        cr.move_to (x, height - data.peek () * scale);
-        foreach (double point in data) {
+        cr.move_to (x, height - series.peek () * scale);
+        foreach (double point in series) {
             cr.line_to (x, height - point * scale);
             x += step;
         }
@@ -54,7 +51,7 @@ public class Valash.Graph : Gtk.DrawingArea {
         Gdk.cairo_set_source_rgba (cr, fill_color);
         cr.move_to (width, height);
         cr.line_to (0, height);
-        foreach (double point in data) {
+        foreach (double point in series) {
             cr.line_to (x, height - point * scale);
             x += step;
         }

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <schemalist gettext-domain="valash">
 	<schema id="com.github.driverding.Valash" path="/com/github/driverding/Valash/">
-	  <key name="url" type="s">
+	  <key name="address" type="s">
 	    <default>''</default>
 	    <summary>URL to Clash/Mihomo RESTful API</summary>
   	  </key>
@@ -17,5 +17,13 @@
 	    <default>1000</default>
 	    <summary>Timeout for Proxy Health Check in ms</summary>
   	  </key>
+	  <key name="record-length" type="i">
+	    <default>50</default>
+	    <summary>Length of the Record of Traffic</summary>
+	  </key>
+	  <key name="update-period" type="i">
+	    <default>1000</default>
+	    <summary>Time for Periodic Refresh of Connection Data in ms (Traffic is not effected)</summary>
+	  </key>
 	</schema>
 </schemalist>

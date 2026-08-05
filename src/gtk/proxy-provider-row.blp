@@ -2,29 +2,24 @@ using Gtk 4.0;
 using Adw 1;
 
 template $ValashProxyProviderRow : Adw.ExpanderRow {
+  styles ["no-hover-nested"]
+
   [suffix]
   Gtk.Box {
     orientation: vertical;
     width-request: 260;
     margin-end: 6;
+
     Gtk.ProgressBar usage_progress_bar {
       margin-top: 11;
       margin-bottom: 7;
     }
 
     Gtk.Label right_label {
+
       halign: end;
       styles ["subtitle"]
     }
-  }
-
-  Gtk.Button health_check_button {
-    label: _("Health Check and Update");
-    clicked => $on_health_check_button_clicked ();
-    margin-start: 8;
-    margin-top: 8;
-    margin-end: 8;
-    margin-bottom: 8;
   }
 
   Gtk.FlowBox flow_box {

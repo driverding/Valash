@@ -5,9 +5,8 @@
     <file preprocess="xml-stripblanks">proxy-button-box.ui</file>
     <file preprocess="xml-stripblanks">proxy-group-row.ui</file>
     <file preprocess="xml-stripblanks">proxy-provider-row.ui</file>
+    <file preprocess="xml-stripblanks">preferences-dialog.ui</file>
     <file preprocess="xml-stripblanks">login-window.ui</file>
     <file preprocess="xml-stripblanks">main-window.ui</file>
-    <file preprocess="xml-stripblanks">overview-page.ui</file>
-    <file preprocess="xml-stripblanks">proxies-page.ui</file>
   </gresource>
 </gresources>
