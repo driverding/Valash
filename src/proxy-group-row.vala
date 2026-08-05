@@ -17,26 +17,20 @@ public class Valash.ProxyGroupModel : Object {
     public void sync_from_json (ProxyData group_data, Gee.HashMap<string, ProxyData> all_proxies) {
         var store = (GLib.ListStore) this.proxies;
 
-        Gee.HashSet<string> to_append = new Gee.HashSet<string> ();
+        /* Build the map of proxies this group wants */
+        var group_proxies = new Gee.HashMap<string, ProxyData> ();
         foreach (string name in group_data.all) {
-            to_append.add (name);
+            group_proxies[name] = all_proxies[name];
         }
 
-        /* Remove Removed Proxies, Sync Existing Proxies */
-        for (int i = (int) store.get_n_items () - 1; i >= 0; i -= 1) {
-            ProxyModel item = (ProxyModel) store.get_item (i);
-            if (!to_append.contains (item.proxy_name)) {
-                store.remove (i);
-            } else {
-                item.sync_from_json (all_proxies[item.proxy_name]);
-                to_append.remove (item.proxy_name);
-            }
-        }
-
-        /* Append New Proxies */
-        foreach (string name in to_append) {
-            store.append (new ProxyModel.from_json (all_proxies[name]));
-        }
+        /* Diff the proxies */
+        diff_list_store<string, ProxyData> (
+            store,
+            group_proxies,
+            (item) => ((ProxyModel) item).proxy_name,
+            (json) => new ProxyModel.from_json (json),
+            (item, json) => ((ProxyModel) item).sync_from_json (json)
+        );
 
         /* Set selected proxy */
         for (uint i = 0; i < store.get_n_items (); i++) {

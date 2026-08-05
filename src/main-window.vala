@@ -28,10 +28,6 @@ public class Valash.MainWindow: Adw.ApplicationWindow {
     [GtkChild]
     private unowned Gtk.Label memory_usage_label;
 
-    /* Settings Bind, should never be set */
-    public int record_length { get; set; }
-    public int update_period { get; set; }
-
     /* ProxyPage */
     [GtkChild]
     private unowned Gtk.ListBox proxy_group_listbox;
@@ -41,7 +37,11 @@ public class Valash.MainWindow: Adw.ApplicationWindow {
     [GtkChild]
     private unowned Valash.ConnectionView connection_view;
 
-
+    
+    /* Settings Bind, should never be set */
+    public int record_length { get; set; }
+    public int update_period { get; set; }
+    
     private Clash clash;
     private Settings settings;
 
@@ -162,26 +162,13 @@ public class Valash.MainWindow: Adw.ApplicationWindow {
         connections_count_label.label = "%u".printf(data.connections.size);
 
         /* Diff the ConnectionView */
-        Gee.HashSet<string> to_append = new Gee.HashSet<string> ();
-        foreach (string id in data.connections.keys) {
-            to_append.add (id);
-        }
-
-        /* Remove Broke Connections, Sync Existing Connections */
-        for (int i = (int) connection_store.get_n_items () - 1; i >= 0; i -= 1) {
-            ConnectionModel item = (ConnectionModel) connection_store.get_item (i);
-            if (!data.connections.has_key (item.id)) {
-                connection_store.remove (i);
-            } else {
-                item.sync_from_json (data.connections[item.id]);
-                to_append.remove (item.id);
-            }
-         }
-
-        /* Addend New Connections */
-        foreach (string id in to_append) {
-            connection_store.append (new ConnectionModel.from_json (data.connections[id]));
-        }
+        diff_list_store<string, ConnectionData> (
+            connection_store,
+            data.connections,
+            (item) => ((ConnectionModel) item).id,
+            (json) => new ConnectionModel.from_json (json),
+            (item, json) => ((ConnectionModel) item).sync_from_json (json)
+        );
     }
 
     private void restart_traffic_memory () {
@@ -191,9 +178,15 @@ public class Valash.MainWindow: Adw.ApplicationWindow {
         clash.start_memory.begin ();
     }
 
+    private async void refresh_proxies () {
+        var data = yield clash.request_proxies (null);
 
+        
+    }
 
-
+    private async void refresh_proxy_providers () {
+    
+    }
 
 
 

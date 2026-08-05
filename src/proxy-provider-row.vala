@@ -33,28 +33,13 @@ public class Valash.ProxyProviderModel : Object {
         this.updated_at = data.updated_at;
 
         /* Diff the proxies */
-        var store = (GLib.ListStore) this.proxies;
-
-        Gee.HashSet<string> to_append = new Gee.HashSet<string> ();
-        foreach (string id in data.proxies.keys) {
-            to_append.add (id);
-        }
-
-        /* Remove Removed Proxies, Sync Existing Proxies */
-        for (int i = (int) store.get_n_items () - 1; i >= 0; i -= 1) {
-            ProxyModel item = (ProxyModel) store.get_item (i);
-            if (!data.proxies.has_key (item.proxy_name)) {
-                store.remove (i);
-            } else {
-                item.sync_from_json (data.proxies[item.proxy_name]);
-                to_append.remove (item.proxy_name);
-            }
-        }
-
-        /* Append New Proxies */
-        foreach (string id in to_append) {
-            store.append (new ProxyModel.from_json (data.proxies[id]));
-        }
+        diff_list_store<string, ProxyData> (
+            (GLib.ListStore) this.proxies,
+            data.proxies,
+            (item) => ((ProxyModel) item).proxy_name,
+            (json) => new ProxyModel.from_json (json),
+            (item, json) => ((ProxyModel) item).sync_from_json (json)
+        );
     }
 }
 
