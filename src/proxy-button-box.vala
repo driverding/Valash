@@ -4,23 +4,26 @@
  */
 
 public class Valash.ProxyModel : Object {
+    public string id         { get; construct; }
     public string proxy_name { get; construct; }
     public string proxy_type { get; construct; }
     public double delay      { get; set; }
     public bool selected     { get; set; }
 
     public ProxyModel.from_json (ProxyData data) {
-        Object (proxy_name: data.id,
+        Object (id: data.id,
+                proxy_name: data.name,
                 proxy_type: data.proxy_type);
         sync_from_json (data);
     }
 
     public void sync_from_json (ProxyData data) {
-        this.delay = data.history.max ((a, b) => {
+        var max_entry = data.history.max ((a, b) => {
             if (a.delay < b.delay) return -1;
             if (a.delay > b.delay) return 1;
             return 0;
-        }).delay;
+        });
+        this.delay = max_entry != null ? max_entry.delay : 0;
     }
 }
 
@@ -42,7 +45,7 @@ public class Valash.ProxyButtonBox : Gtk.Box {
     construct {
         model.bind_property ("proxy_name", name_label, "label", BindingFlags.SYNC_CREATE);
         model.bind_property ("proxy_type", type_label, "label", BindingFlags.SYNC_CREATE);
-        model.bind_property ("delay", delay_label, "label", BindingFlags.SYNC_CREATE, format_value_transform);
+        model.bind_property ("delay", delay_label, "label", BindingFlags.SYNC_CREATE, format_delay_transform);
         model.notify["selected"].connect (refresh_selected_style); /* Change to Adw.bind_property_to_css_class later for libadwaita 1.11 */
     }
 

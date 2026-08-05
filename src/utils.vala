@@ -12,7 +12,14 @@ namespace Valash {
 
     /* format_value for data binding */
     public bool format_value_transform (GLib.Binding binding, GLib.Value from_value, ref GLib.Value to_value) {
-        to_value = format_value ((int) from_value.get_int ());
+        to_value = format_value (from_value.get_double ());
+        return true;
+    }
+
+    /*  */
+    public bool format_delay_transform (GLib.Binding binding, GLib.Value from_value, ref GLib.Value to_value) {
+        double delay = from_value.get_double ();
+        to_value = delay == 0 ? "-" : "%.2f ms".printf (delay);
         return true;
     }
 

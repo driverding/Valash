@@ -37,11 +37,11 @@ public class Valash.MainWindow: Adw.ApplicationWindow {
     [GtkChild]
     private unowned Valash.ConnectionView connection_view;
 
-    
+
     /* Settings Bind, should never be set */
     public int record_length { get; set; }
     public int update_period { get; set; }
-    
+
     private Clash clash;
     private Settings settings;
 
@@ -106,6 +106,9 @@ public class Valash.MainWindow: Adw.ApplicationWindow {
 
         reschedule_connections_request ();
         restart_traffic_memory ();
+
+        refresh_proxies.begin ();
+        refresh_proxy_providers.begin ();
     }
 
     private void error_encountered (string message) {
@@ -179,13 +182,30 @@ public class Valash.MainWindow: Adw.ApplicationWindow {
     }
 
     private async void refresh_proxies () {
-        var data = yield clash.request_proxies (null);
+        var proxies = yield clash.request_proxies (null);
+        if (proxies == null) {
+            return;
+        }
 
-        
+        /* Filter to only proxy groups (entries with a non-null "all" field) */
+        var groups = new Gee.HashMap<string, ProxyData> ();
+        foreach (var entry in proxies.entries) {
+            if (entry.value.all != null) {
+                groups[entry.key] = entry.value;
+            }
+        }
+
+        diff_list_store<string, ProxyData> (
+            proxy_group_store,
+            groups,
+            (item) => ((ProxyGroupModel) item).proxy_group_name,
+            (json) => new ProxyGroupModel.from_json (json, proxies),
+            (item, json) => ((ProxyGroupModel) item).sync_from_json (json, proxies)
+        );
     }
 
     private async void refresh_proxy_providers () {
-    
+
     }
 
 

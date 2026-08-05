@@ -36,7 +36,7 @@ public class Valash.ProxyProviderModel : Object {
         diff_list_store<string, ProxyData> (
             (GLib.ListStore) this.proxies,
             data.proxies,
-            (item) => ((ProxyModel) item).proxy_name,
+            (item) => ((ProxyModel) item).id,
             (json) => new ProxyModel.from_json (json),
             (item, json) => ((ProxyModel) item).sync_from_json (json)
         );
