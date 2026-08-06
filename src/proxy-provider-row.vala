@@ -70,6 +70,8 @@ public class Valash.ProxyProviderRow : Adw.ExpanderRow {
         flow_box.bind_model (model.proxies, (obj) => {
             return new ProxyButtonBox ((ProxyModel) obj);
         });
+
+        refresh ();
     }
 
     public ProxyProviderRow (ProxyProviderModel model) {

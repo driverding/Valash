@@ -321,13 +321,15 @@ template $ValashMainWindow: Adw.ApplicationWindow {
             Adw.Clamp {
               maximum-size: 1280;
               tightening-threshold: 10;
-              margin-start: 8;
-              margin-end: 8;
+              margin-start: 0;
+              margin-end: 0;
               margin-top: 9;
               margin-bottom: 16;
 
               Gtk.Box {
                 orientation: vertical;
+                margin-start: 26;
+                margin-end: 26;
                 spacing: 16;
 
                 Gtk.Label {
@@ -338,6 +340,7 @@ template $ValashMainWindow: Adw.ApplicationWindow {
 
                 Gtk.ListBox proxy_group_listbox {
                   styles ["boxed-list"]
+                  selection-mode: none;
                 }
 
                 Gtk.Label {
@@ -348,6 +351,7 @@ template $ValashMainWindow: Adw.ApplicationWindow {
 
                 Gtk.ListBox proxy_provider_listbox {
                   styles ["boxed-list"]
+                  selection-mode: none;
                 }
 
                 Adw.Bin {

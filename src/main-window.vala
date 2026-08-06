@@ -205,7 +205,26 @@ public class Valash.MainWindow: Adw.ApplicationWindow {
     }
 
     private async void refresh_proxy_providers () {
+        var providers = yield clash.request_proxy_providers (null);
+        if (providers == null) {
+            return;
+        }
 
+        var new_providers = new Gee.HashMap<string, ProxyProviderData>();
+        foreach (var entry in providers.entries) {
+            if (entry.value.vehicle_type != "Compatible") {
+                new_providers[entry.key] = entry.value;
+            }
+        }
+        providers = new_providers;
+
+        diff_list_store<string, ProxyProviderData> (
+            proxy_provider_store,
+            providers,
+            (item) => ((ProxyProviderModel) item).provider_name,
+            (json) => new ProxyProviderModel.from_json (json),
+            (item, json) => ((ProxyProviderModel) item).sync_from_json (json)
+        );
     }
 
 

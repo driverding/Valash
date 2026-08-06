@@ -19,7 +19,7 @@ namespace Valash {
     /*  */
     public bool format_delay_transform (GLib.Binding binding, GLib.Value from_value, ref GLib.Value to_value) {
         double delay = from_value.get_double ();
-        to_value = delay == 0 ? "-" : "%.2f ms".printf (delay);
+        to_value = delay == 0 ? "-" : "%.0f ms".printf (delay);
         return true;
     }
 

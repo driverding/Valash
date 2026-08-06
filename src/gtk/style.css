@@ -11,3 +11,7 @@ flowbox > flowboxchild {
 .no-hover-nested list.nested row:hover {
     background: transparent;
 }
+
+.no-hover-nested row.header.activatable:active {
+    background-color: transparent;
+}
