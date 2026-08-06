@@ -64,6 +64,11 @@ public class Valash.MainWindow: Adw.ApplicationWindow {
     }
 
     construct {
+        ActionEntry[] action_entries = {
+            { "clash.select-proxy", this.on_select_proxy, "(ss)" },
+        };
+        this.add_action_entries (action_entries, this);
+
         proxy_group_store = new GLib.ListStore (typeof (ProxyGroupModel));
         proxy_provider_store = new GLib.ListStore (typeof (ProxyProviderModel));
 
@@ -235,7 +240,16 @@ public class Valash.MainWindow: Adw.ApplicationWindow {
 
 
 
+    private void on_select_proxy (SimpleAction action, Variant? parameter) {
+        string group, proxy;
+        parameter.get ("(ss)", out group, out proxy);
+        select_proxy.begin (group, proxy);
+    }
 
+    private async void select_proxy (string group, string proxy) {
+        bool result = yield clash.set_proxy (group, proxy, null);
+        refresh_proxies.begin ();
+    }
 
 
     [GtkCallback]
