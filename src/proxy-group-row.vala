@@ -35,7 +35,7 @@ public class Valash.ProxyGroupModel : Object {
         /* Set selected proxy */
         for (uint i = 0; i < store.get_n_items (); i++) {
             ProxyModel item = (ProxyModel) store.get_item (i);
-            item.selected = item.id == group_data.now;
+            item.selected = item.proxy_name == group_data.now;
         }
     }
 }

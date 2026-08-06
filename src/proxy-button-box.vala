@@ -51,6 +51,8 @@ public class Valash.ProxyButtonBox : Gtk.Box {
 
     public ProxyButtonBox (ProxyModel model) {
         Object (model: model);
+
+        refresh_selected_style ();
     }
 
     private void refresh_selected_style () {

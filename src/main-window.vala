@@ -202,6 +202,8 @@ public class Valash.MainWindow: Adw.ApplicationWindow {
             (json) => new ProxyGroupModel.from_json (json, proxies),
             (item, json) => ((ProxyGroupModel) item).sync_from_json (json, proxies)
         );
+
+
     }
 
     private async void refresh_proxy_providers () {
