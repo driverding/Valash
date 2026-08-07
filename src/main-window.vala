@@ -280,7 +280,7 @@ public class Valash.MainWindow: Adw.ApplicationWindow {
                 clash.request_proxy_delay.end (res);
                 remaining -= 1;
                 if (remaining == 0) {
-                    message ("Done");
+                    overlay.add_toast (new Adw.Toast (_("Update Done")));
                     refresh_proxies.begin ();
                 }
             });
@@ -336,6 +336,45 @@ public class Valash.MainWindow: Adw.ApplicationWindow {
 
     [GtkCallback]
     private void on_update_all_proxy_button_clicked (Gtk.Button source) {
+        update_all_proxies.begin ();
+    }
 
+    private async void update_all_proxies () {
+        var proxy_names = new Gee.HashSet<string> ();
+
+        /* Collect all proxy names from groups */
+        for (uint i = 0; i < proxy_group_store.get_n_items (); i++) {
+            var group = (ProxyGroupModel) proxy_group_store.get_item (i);
+            for (uint j = 0; j < group.proxies.get_n_items (); j++) {
+                var proxy = (ProxyModel) group.proxies.get_item (j);
+                proxy_names.add (proxy.proxy_name);
+            }
+        }
+
+        /* Collect all proxy names from providers */
+        for (uint i = 0; i < proxy_provider_store.get_n_items (); i++) {
+            var provider = (ProxyProviderModel) proxy_provider_store.get_item (i);
+            for (uint j = 0; j < provider.proxies.get_n_items (); j++) {
+                var proxy = (ProxyModel) provider.proxies.get_item (j);
+                proxy_names.add (proxy.proxy_name);
+            }
+        }
+
+        uint remaining = (uint) proxy_names.size;
+        if (remaining == 0) {
+            return;
+        }
+
+        foreach (string name in proxy_names) {
+            clash.request_proxy_delay.begin (name, null, (obj, res) => {
+                clash.request_proxy_delay.end (res);
+                remaining -= 1;
+                if (remaining == 0) {
+                    overlay.add_toast (new Adw.Toast (_("Update Done")));
+                    refresh_proxies.begin ();
+                    refresh_proxy_providers.begin ();
+                }
+            });
+        }
     }
 }

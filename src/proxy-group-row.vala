@@ -6,6 +6,7 @@
 public class Valash.ProxyGroupModel : Object {
     public string proxy_group_name { get; construct; }
     public GLib.ListModel proxies  { get; construct; } /* typeof: ProxyModel */
+    public string title            { get; set; default = ""; }
 
     public ProxyGroupModel.from_json (ProxyData group_data, Gee.HashMap<string, ProxyData> all_proxies) {
         var proxy_store = new GLib.ListStore (typeof (ProxyModel));
@@ -37,6 +38,17 @@ public class Valash.ProxyGroupModel : Object {
             ProxyModel item = (ProxyModel) store.get_item (i);
             item.selected = item.proxy_name == group_data.now;
         }
+
+        /* Update title with selected proxy name */
+        string selected_proxy = "";
+        for (uint i = 0; i < store.get_n_items (); i++) {
+            ProxyModel item = (ProxyModel) store.get_item (i);
+            if (item.selected) {
+                selected_proxy = item.proxy_name;
+                break;
+            }
+        }
+        this.title = selected_proxy != "" ? @"$(proxy_group_name) - $selected_proxy" : proxy_group_name;
     }
 }
 
@@ -55,7 +67,7 @@ public class Valash.ProxyGroupRow : Adw.ExpanderRow {
     }
 
     construct {
-        model.bind_property ("proxy_group_name", this, "title", BindingFlags.SYNC_CREATE);
+        model.bind_property ("title", this, "title", BindingFlags.SYNC_CREATE);
         model.proxies.items_changed.connect ((positions, removed, added) => { refresh_subtitle (); });
         flow_box.bind_model (model.proxies, (obj) => {
             return new ProxyButtonBox ((ProxyModel) obj);
