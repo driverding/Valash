@@ -72,6 +72,6 @@ public class Valash.ProxyButtonBox : Gtk.Box {
 
     [GtkCallback]
     private void on_delay_check_button_clicked (Gtk.Button source) {
-        this.activate_action ("clash.request-delay-check", "s", model.proxy_name);
+        this.activate_action ("win.request-delay-check", "s", model.proxy_name);
     }
 }

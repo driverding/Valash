@@ -50,7 +50,7 @@ public class Valash.ProxyGroupRow : Adw.ExpanderRow {
     class construct {
         install_action ("group.select-proxy", "s", (widget, action_name, parameter) => {
             var self = widget as ProxyGroupRow;
-            self.activate_action ("win.clash.select-proxy", "(ss)", self.model.proxy_group_name, parameter.get_string ());
+            self.activate_action ("win.select-proxy", "(ss)", self.model.proxy_group_name, parameter.get_string ());
         });
     }
 

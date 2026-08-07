@@ -65,7 +65,9 @@ public class Valash.MainWindow: Adw.ApplicationWindow {
 
     construct {
         ActionEntry[] action_entries = {
-            { "clash.select-proxy", this.on_select_proxy, "(ss)" },
+            { "select-proxy", this.on_select_proxy, "(ss)" },
+            { "request-group-delay-check", this.on_request_group_delay_check, "s" },
+            { "request-delay-check", this.on_request_delay_check, "s" },
         };
         this.add_action_entries (action_entries, this);
 
@@ -251,6 +253,38 @@ public class Valash.MainWindow: Adw.ApplicationWindow {
         refresh_proxies.begin ();
     }
 
+    private void on_request_group_delay_check (SimpleAction action, Variant? parameter) {
+        string group_name = parameter.get_string ();
+        request_group_delay_check.begin (group_name);
+    }
+
+    private async void request_group_delay_check (string group_name) {
+        string[] proxy_names = {};
+        for (uint i = 0; i < proxy_group_store.get_n_items (); i++) {
+            var group = (ProxyGroupModel) proxy_group_store.get_item (i);
+            if (group.proxy_group_name == group_name) {
+                for (uint j = 0; j < group.proxies.get_n_items (); j++) {
+                    var proxy = (ProxyModel) group.proxies.get_item (j);
+                    proxy_names += proxy.proxy_name;
+                }
+                break;
+            }
+        }
+        foreach (string name in proxy_names) {
+            yield clash.request_proxy_delay (name, null);
+        }
+        refresh_proxies.begin ();
+    }
+
+    private void on_request_delay_check (SimpleAction action, Variant? parameter) {
+        string proxy_name = parameter.get_string ();
+        request_delay_check.begin (proxy_name);
+    }
+
+    private async void request_delay_check (string proxy_name) {
+        yield clash.request_proxy_delay (proxy_name, null);
+        refresh_proxies.begin ();
+    }
 
     [GtkCallback]
     private void on_refresh_button_clicked (Gtk.Button source) {
