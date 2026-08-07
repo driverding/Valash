@@ -270,10 +270,21 @@ public class Valash.MainWindow: Adw.ApplicationWindow {
                 break;
             }
         }
-        foreach (string name in proxy_names) {
-            yield clash.request_proxy_delay (name, null);
+
+        if (proxy_names.length == 0) {
+            return;
         }
-        refresh_proxies.begin ();
+        uint remaining = (uint) proxy_names.length;
+        foreach (string name in proxy_names) {
+            clash.request_proxy_delay.begin (name, null, (obj, res) => {
+                clash.request_proxy_delay.end (res);
+                remaining -= 1;
+                if (remaining == 0) {
+                    message ("Done");
+                    refresh_proxies.begin ();
+                }
+            });
+        }
     }
 
     private void on_request_delay_check (SimpleAction action, Variant? parameter) {
