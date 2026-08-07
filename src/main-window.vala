@@ -255,6 +255,8 @@ public class Valash.MainWindow: Adw.ApplicationWindow {
     [GtkCallback]
     private void on_refresh_button_clicked (Gtk.Button source) {
         restart_traffic_memory ();
+        refresh_proxies.begin ();
+        refresh_proxy_providers.begin ();
     }
 
     [GtkCallback]

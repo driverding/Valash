@@ -64,6 +64,7 @@ public class Valash.ProxyGroupRow : Adw.ExpanderRow {
 
     public ProxyGroupRow (ProxyGroupModel model) {
         Object (model: model);
+        refresh_subtitle ();
     }
 
     private void refresh_subtitle () {
