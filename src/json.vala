@@ -109,6 +109,31 @@ public class Valash.ConnectionsData : GLib.Object, Json.Serializable {
     }
 }
 
+public class Valash.ConfigsData : GLib.Object, Json.Serializable {
+    public string mode        { get; set; }
+    public bool   tun_enabled { get; set; }
+
+    public override unowned ParamSpec? find_property (string name) {
+        if (name == "tun")
+            return get_class ().find_property ("tun-enabled");
+        return get_class ().find_property (camel_to_kebab (name));
+    }
+
+    public override bool deserialize_property (string property_name,
+                                               out Value value,
+                                               ParamSpec pspec,
+                                               Json.Node property_node) {
+        if (property_name == "tun-enabled") {
+            value = Value (typeof (bool));
+            value.set_boolean (property_node.get_node_type () == Json.NodeType.OBJECT &&
+                               property_node.get_object ().has_member ("enable") &&
+                               property_node.get_object ().get_boolean_member ("enable"));
+            return true;
+        }
+        return default_deserialize_property (property_name, out value, pspec, property_node);
+    }
+}
+
 public class Valash.HealthHistory : GLib.Object, Json.Serializable {
     public GLib.DateTime time  { get; set; }
     public int           delay { get; set; }  // 0 represents infinite

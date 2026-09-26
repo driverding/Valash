@@ -30,6 +30,7 @@ public class Valash.Clash: Object {
     
     // Test
     public async bool test_validity (string url, string secret, out string error) {
+        error = "";
         Soup.Message message = new Soup.Message ("GET", url);
         if (secret != "") message.request_headers.append ("Authorization", @"Bearer $(secret)");
         try {
@@ -199,6 +200,33 @@ public class Valash.Clash: Object {
             yield session.send_async (message, Priority.DEFAULT, cancellable);
         } catch (Error e) {
             warn_error (e);
+        }
+    }
+
+    public async ConfigsData? request_configs (GLib.Cancellable? cancellable) {
+        Soup.Message message = new Soup.Message ("GET", this.url + "/configs");
+        if (secret != "") message.request_headers.append ("Authorization", @"Bearer $(secret)");
+        try {
+            GLib.Bytes response = yield session.send_and_read_async (message, Priority.DEFAULT, cancellable);
+            return (ConfigsData) Json.gobject_from_data (typeof (ConfigsData), (string) response.get_data ());
+        } catch (Error e) {
+            warn_error (e);
+            return null;
+        }
+    }
+
+    public async bool set_mode (string mode, GLib.Cancellable? cancellable) {
+        string body = @"{\"mode\": \"$mode\"}";
+        Soup.Message message = new Soup.Message ("PATCH", this.url + "/configs");
+        if (secret != "") message.request_headers.append ("Authorization", @"Bearer $(secret)");
+        message.request_headers.set_content_type ("application/json", null);
+        message.set_request_body_from_bytes ("application/json", new GLib.Bytes (body.data));
+        try {
+            yield session.send_async (message, Priority.DEFAULT, cancellable);
+            return 200 <= message.status_code < 300;
+        } catch (Error e) {
+            warn_error (e);
+            return false;
         }
     }
 

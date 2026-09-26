@@ -34,6 +34,12 @@ public class Valash.MainWindow: Adw.ApplicationWindow {
     [GtkChild]
     private unowned Gtk.ListBox proxy_provider_listbox;
 
+    /* Settings Group */
+    [GtkChild]
+    private unowned Adw.SwitchRow tun_row;
+    [GtkChild]
+    private unowned Adw.ComboRow mode_row;
+
     [GtkChild]
     private unowned Valash.ConnectionView connection_view;
 
@@ -57,6 +63,10 @@ public class Valash.MainWindow: Adw.ApplicationWindow {
 
 
     private uint connections_request_handler = 0;
+    /* Mode confirmed by the kernel, used to revert a failed change */
+    private uint last_mode_index = 0;
+    private bool syncing_mode_row = false;
+    private bool syncing_tun_row = false;
 
     static construct {
         typeof (Valash.Graph).ensure ();
@@ -83,6 +93,10 @@ public class Valash.MainWindow: Adw.ApplicationWindow {
 
         connection_store = new GLib.ListStore (typeof (ConnectionModel));
         connection_view.set_model (connection_store);
+
+        syncing_mode_row = true;
+        mode_row.model = new Gtk.StringList ({ _("Rule"), _("Global"), _("Direct") });
+        syncing_mode_row = false;
 
         download_record = new Gee.ArrayQueue<double?> ();
         upload_record = new Gee.ArrayQueue<double?> ();
@@ -116,6 +130,7 @@ public class Valash.MainWindow: Adw.ApplicationWindow {
 
         refresh_proxies.begin ();
         refresh_proxy_providers.begin ();
+        refresh_settings.begin ();
     }
 
     private void error_encountered (string message) {
@@ -126,8 +141,8 @@ public class Valash.MainWindow: Adw.ApplicationWindow {
         while (download_record.size > record_length) download_record.poll_head ();
         while (download_record.size < record_length) download_record.offer_head (0);
 
-        while (download_record.size > record_length) download_record.poll_head ();
-        while (download_record.size < record_length) download_record.offer_head (0);
+        while (upload_record.size > record_length) upload_record.poll_head ();
+        while (upload_record.size < record_length) upload_record.offer_head (0);
     }
 
     private void traffic_received (TrafficChunk traffic) {
@@ -139,14 +154,17 @@ public class Valash.MainWindow: Adw.ApplicationWindow {
         upload_record.offer (traffic.up);
         upload_graph.refresh ();
 
-        GLib.CompareDataFunc<double?> compare_func = (a, b) => { return a > b ? 1 : a == b ? 0 : -1; };
-        double max_down = download_record.max (compare_func);
-        double max_up = upload_record.max (compare_func);
+        double max_down = download_record.max (compare_double);
+        double max_up = upload_record.max (compare_double);
 
         download_speed_label.label = _("%s/s - Max: %s/s").printf(format_value(traffic.down),
                                                                   format_value(max_down));
         upload_speed_label.label = _("%s/s - Max: %s/s").printf(format_value(traffic.up),
                                                                 format_value(max_up));
+    }
+
+    private static int compare_double (double? a, double? b) {
+        return a > b ? 1 : a == b ? 0 : -1;
     }
 
     private void memory_received (MemoryChunk memory) {
@@ -165,7 +183,8 @@ public class Valash.MainWindow: Adw.ApplicationWindow {
     }
 
     private async void request_connections () {
-        ConnectionsData data = yield clash.request_connections (connections_cancellable);
+        ConnectionsData? data = yield clash.request_connections (connections_cancellable);
+        if (data == null) return;
 
         total_downloads_label.label   = format_value (data.download_total);
         total_uploads_label.label     = format_value (data.upload_total);
@@ -249,7 +268,10 @@ public class Valash.MainWindow: Adw.ApplicationWindow {
     }
 
     private async void select_proxy (string group, string proxy) {
-        bool result = yield clash.set_proxy (group, proxy, null);
+        bool success = yield clash.set_proxy (group, proxy, null);
+        if (!success) {
+            overlay.add_toast (new Adw.Toast (_("Failed to select %s in %s").printf (proxy, group)));
+        }
         refresh_proxies.begin ();
     }
 
@@ -302,10 +324,12 @@ public class Valash.MainWindow: Adw.ApplicationWindow {
         restart_traffic_memory ();
         refresh_proxies.begin ();
         refresh_proxy_providers.begin ();
+        refresh_settings.begin ();
     }
 
     [GtkCallback]
     private void on_tun_switch_notify_active (GLib.Object sender, GLib.ParamSpec pspec) {
+        if (syncing_tun_row) return;
         Adw.SwitchRow source = (Adw.SwitchRow) sender;
         source.sensitive = false;
         configure_tun.begin (source, source.active);
@@ -314,14 +338,63 @@ public class Valash.MainWindow: Adw.ApplicationWindow {
     private async void configure_tun (Adw.SwitchRow source, bool setting) {
         bool success = yield clash.configure_tun (setting, null);
         if (!success) {
+            overlay.add_toast (new Adw.Toast (_("Failed to change TUN mode")));
             source.active = !source.active;
         }
         source.sensitive = true;
     }
 
     [GtkCallback]
-    private void on_global_switch_notify_active (GLib.Object sender, GLib.ParamSpec pspec) {
+    private void on_mode_row_notify_selected_item (GLib.Object sender, GLib.ParamSpec pspec) {
+        if (syncing_mode_row) return;
+        string? mode = mode_from_index (mode_row.selected);
+        if (mode == null) return;
+        mode_row.sensitive = false;
+        set_mode.begin (mode);
+    }
 
+    private static string? mode_from_index (uint index) {
+        switch (index) {
+        case 0: return "rule";
+        case 1: return "global";
+        case 2: return "direct";
+        default: return null;
+        }
+    }
+
+    private static uint index_of_mode (string mode) {
+        switch (mode.down ()) {
+        case "global": return 1;
+        case "direct": return 2;
+        default: return 0;
+        }
+    }
+
+    private async void set_mode (string mode) {
+        bool success = yield clash.set_mode (mode, null);
+        if (success) {
+            last_mode_index = mode_row.selected;
+        } else {
+            overlay.add_toast (new Adw.Toast (_("Failed to switch running mode")));
+            syncing_mode_row = true;
+            mode_row.selected = last_mode_index;
+            syncing_mode_row = false;
+        }
+        mode_row.sensitive = true;
+    }
+
+    private async void refresh_settings () {
+        ConfigsData? data = yield clash.request_configs (null);
+        if (data == null) return;
+
+        syncing_mode_row = true;
+        last_mode_index = index_of_mode (data.mode ?? "rule");
+        mode_row.selected = last_mode_index;
+        syncing_mode_row = false;
+
+        syncing_tun_row = true;
+        tun_row.active = data.tun_enabled;
+        syncing_tun_row = false;
     }
 
     [GtkCallback]

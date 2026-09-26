@@ -279,16 +279,16 @@ template $ValashMainWindow: Adw.ApplicationWindow {
                 Adw.PreferencesGroup {
                   title: _("Settings");
 
-                  Adw.SwitchRow {
+                  Adw.SwitchRow tun_row {
                     title: _("Enable TUN Mode");
                     subtitle: _("Emulate a virtual network interface");
                     notify::active => $on_tun_switch_notify_active ();
                   }
 
-                  Adw.SwitchRow {
-                    title: _("Enable Global Policy");
-                    subtitle: _("Target all connections to GLOBAL proxy");
-                    notify::active => $on_global_switch_notify_active ();
+                  Adw.ComboRow mode_row {
+                    title: _("Running Mode");
+                    subtitle: _("How traffic is routed through proxies");
+                    notify::selected-item => $on_mode_row_notify_selected_item ();
                   }
                 }
 
