@@ -61,6 +61,9 @@ public class Valash.MainWindow: Adw.ApplicationWindow {
 
     private GLib.ListStore connection_store;
 
+    /* Last known data for every proxy name, from /proxies and the providers */
+    private Gee.HashMap<string, ProxyData> proxy_index = new Gee.HashMap<string, ProxyData> ();
+
 
     private uint connections_request_handler = 0;
     /* Mode confirmed by the kernel, used to revert a failed change */
@@ -228,6 +231,7 @@ public class Valash.MainWindow: Adw.ApplicationWindow {
                 }
             }
         }
+        proxy_index = members;
 
         /* Filter to only proxy groups (entries with a non-null "all" field) */
         var groups = new Gee.HashMap<string, ProxyData> ();
@@ -291,10 +295,6 @@ public class Valash.MainWindow: Adw.ApplicationWindow {
 
     private void on_request_group_delay_check (SimpleAction action, Variant? parameter) {
         string group_name = parameter.get_string ();
-        request_group_delay_check.begin (group_name);
-    }
-
-    private async void request_group_delay_check (string group_name) {
         string[] proxy_names = {};
         for (uint i = 0; i < proxy_group_store.get_n_items (); i++) {
             var group = (ProxyGroupModel) proxy_group_store.get_item (i);
@@ -307,30 +307,63 @@ public class Valash.MainWindow: Adw.ApplicationWindow {
             }
         }
 
-        if (proxy_names.length == 0) {
+        run_delay_checks (proxy_names);
+    }
+
+    /* Proxy-provider nodes are not in the global proxy tree, so /proxies/<name>/delay
+     * answers 404 for them. Their latency can only be refreshed one provider at a time. */
+    private void split_delay_targets (string[] proxy_names,
+                                      out Gee.HashSet<string> providers,
+                                      out Gee.ArrayList<string> direct) {
+        providers = new Gee.HashSet<string> ();
+        direct = new Gee.ArrayList<string> ();
+        foreach (string name in proxy_names) {
+            ProxyData? data = proxy_index[name];
+            string provider = data != null ? data.provider_name : null;
+            if (provider != null && provider != "") {
+                providers.add (provider);
+            } else {
+                direct.add (name);
+            }
+        }
+    }
+
+    private void run_delay_checks (string[] proxy_names) {
+        Gee.HashSet<string> providers;
+        Gee.ArrayList<string> direct;
+        split_delay_targets (proxy_names, out providers, out direct);
+
+        uint remaining = (uint) providers.size + (uint) direct.size;
+        if (remaining == 0) {
             return;
         }
-        uint remaining = (uint) proxy_names.length;
-        foreach (string name in proxy_names) {
+
+        foreach (string provider in providers) {
+            clash.request_proxy_providers_healthcheck.begin (provider, null, (obj, res) => {
+                if (!clash.request_proxy_providers_healthcheck.end (res)) {
+                    overlay.add_toast (new Adw.Toast (_("Health check failed for %s").printf (provider)));
+                }
+                delay_check_done (ref remaining);
+            });
+        }
+        foreach (string name in direct) {
             clash.request_proxy_delay.begin (name, null, (obj, res) => {
                 clash.request_proxy_delay.end (res);
-                remaining -= 1;
-                if (remaining == 0) {
-                    overlay.add_toast (new Adw.Toast (_("Update Done")));
-                    refresh_proxies.begin ();
-                }
+                delay_check_done (ref remaining);
             });
         }
     }
 
-    private void on_request_delay_check (SimpleAction action, Variant? parameter) {
-        string proxy_name = parameter.get_string ();
-        request_delay_check.begin (proxy_name);
+    private void delay_check_done (ref uint remaining) {
+        remaining -= 1;
+        if (remaining == 0) {
+            overlay.add_toast (new Adw.Toast (_("Update Done")));
+            refresh_proxies.begin ();
+        }
     }
 
-    private async void request_delay_check (string proxy_name) {
-        yield clash.request_proxy_delay (proxy_name, null);
-        refresh_proxies.begin ();
+    private void on_request_delay_check (SimpleAction action, Variant? parameter) {
+        run_delay_checks ({ parameter.get_string () });
     }
 
     [GtkCallback]
@@ -422,10 +455,10 @@ public class Valash.MainWindow: Adw.ApplicationWindow {
 
     [GtkCallback]
     private void on_update_all_proxy_button_clicked (Gtk.Button source) {
-        update_all_proxies.begin ();
+        update_all_proxies ();
     }
 
-    private async void update_all_proxies () {
+    private void update_all_proxies () {
         var proxy_names = new Gee.HashSet<string> ();
 
         /* Collect all proxy names from groups */
@@ -446,20 +479,6 @@ public class Valash.MainWindow: Adw.ApplicationWindow {
             }
         }
 
-        uint remaining = (uint) proxy_names.size;
-        if (remaining == 0) {
-            return;
-        }
-
-        foreach (string name in proxy_names) {
-            clash.request_proxy_delay.begin (name, null, (obj, res) => {
-                clash.request_proxy_delay.end (res);
-                remaining -= 1;
-                if (remaining == 0) {
-                    overlay.add_toast (new Adw.Toast (_("Update Done")));
-                    refresh_proxies.begin ();
-                }
-            });
-        }
+        run_delay_checks (proxy_names.to_array ());
     }
 }

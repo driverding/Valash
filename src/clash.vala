@@ -193,13 +193,15 @@ public class Valash.Clash: Object {
         }
     }
 
-    public async void request_proxy_providers_healthcheck (string provider, GLib.Cancellable? cancellable) {
-        Soup.Message message = new Soup.Message ("GET", this.url + "/providers/proxies/${provider}/healthcheck");
+    public async bool request_proxy_providers_healthcheck (string provider, GLib.Cancellable? cancellable) {
+        Soup.Message message = new Soup.Message ("GET", this.url + @"/providers/proxies/$(provider)/healthcheck");
         if (secret != "") message.request_headers.append ("Authorization", @"Bearer $(secret)");
         try {
             yield session.send_async (message, Priority.DEFAULT, cancellable);
+            return 200 <= message.status_code < 300;
         } catch (Error e) {
             warn_error (e);
+            return false;
         }
     }
 

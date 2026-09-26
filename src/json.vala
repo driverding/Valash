@@ -166,6 +166,7 @@ public class Valash.ProxyData : GLib.Object, Json.Serializable {
     public string                       proxy_interface { get; set; }
     public bool                         mptcp           { get; set; }
     public string                       name            { get; set; }
+    public string?                      provider_name   { get; set; }
     public string                       now             { get; set; }
     public int                          routing_mark    { get; set; }
     public bool                         smux            { get; set; }
