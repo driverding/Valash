@@ -1,6 +1,19 @@
 # List of source files containing translatable strings.
 # Please keep this file sorted alphabetically.
 data/com.github.driverding.Valash.desktop.in
-data/com.github.driverding.Valash.metainfo.xml.in
 data/com.github.driverding.Valash.gschema.xml
+data/com.github.driverding.Valash.metainfo.xml.in
+src/application.vala
+src/clash.vala
+src/connection-view.vala
+src/gtk/login-window.blp
+src/gtk/main-window.blp
+src/gtk/preferences-dialog.blp
+src/gtk/proxy-button-box.blp
+src/gtk/proxy-group-row.blp
+src/gtk/proxy-provider-row.blp
+src/login-window.vala
+src/main-window.vala
 src/main.vala
+src/proxy-group-row.vala
+src/proxy-provider-row.vala

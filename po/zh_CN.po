@@ -1,0 +1,235 @@
+# Chinese translations for valash package
+# valash 软件包的简体中文翻译.
+# Copyright (C) 2026 THE valash'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the valash package.
+# Automatically generated, 2026.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: valash\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-09-26 14:21+0800\n"
+"PO-Revision-Date: 2026-09-26 01:58+0800\n"
+"Last-Translator: Automatically generated\n"
+"Language-Team: none\n"
+"Language: zh_CN\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+msgid "valash"
+msgstr ""
+
+msgid "GTK;"
+msgstr "GTK;Clash;代理;网络;"
+
+msgid "URL to Clash/Mihomo RESTful API"
+msgstr "Clash/Mihomo RESTful API 的网址"
+
+msgid "Secret to Access Clash/Mihomo RESTful API"
+msgstr "访问 Clash/Mihomo RESTful API 的密钥"
+
+msgid "URL for Testing Proxy Delay"
+msgstr "测试代理延迟所用的网址"
+
+msgid "Timeout for Proxy Health Check in ms"
+msgstr "代理健康检查的超时时间（毫秒）"
+
+msgid "Length of the Record of Traffic"
+msgstr "流量记录的条目数"
+
+msgid ""
+"Time for Periodic Refresh of Connection Data in ms (Traffic is not effected)"
+msgstr ""
+
+msgid "Valash"
+msgstr "Valash"
+
+msgid "Keep the summary shorter, between 10 and 35 characters"
+msgstr ""
+
+msgid "No description"
+msgstr ""
+
+msgid "Developer name"
+msgstr ""
+
+msgid "A caption"
+msgstr ""
+
+msgid "translator-credits"
+msgstr ""
+
+msgid "NULL response"
+msgstr "空响应"
+
+#, c-format
+msgid "Unrecognizable response: %s"
+msgstr "无法识别的响应：%s"
+
+msgid "Host"
+msgstr "主机"
+
+msgid "Chains"
+msgstr "链路"
+
+msgid "Download"
+msgstr "下载"
+
+msgid "Upload"
+msgstr "上传"
+
+msgid "Welcome"
+msgstr "欢迎"
+
+msgid "Connect to the Clash Kernel to Start"
+msgstr "连接 Clash 内核后即可开始"
+
+msgid "Address"
+msgstr "地址"
+
+msgid "Secret"
+msgstr "密钥"
+
+msgid "Connect"
+msgstr "连接"
+
+msgid "Preferences"
+msgstr "偏好设置"
+
+msgid "Relogin"
+msgstr "重新登录"
+
+msgid "About Valash"
+msgstr "关于 Valash"
+
+msgid "Refresh Current Page"
+msgstr "刷新当前页面"
+
+msgid "Overview"
+msgstr "概览"
+
+msgid "Monitor"
+msgstr "监控"
+
+msgid "Download Speed"
+msgstr "下载速度"
+
+msgid "Upload Speed"
+msgstr "上传速度"
+
+msgid "Total Downloads"
+msgstr "累计下载"
+
+msgid "Total Uploads"
+msgstr "累计上传"
+
+msgid "Connections Count"
+msgstr "连接数"
+
+msgid "Memory Usage"
+msgstr "内存占用"
+
+msgid "Settings"
+msgstr "设置"
+
+msgid "Enable TUN Mode"
+msgstr "启用 TUN 模式"
+
+msgid "Emulate a virtual network interface"
+msgstr "模拟一个虚拟网卡"
+
+msgid "Running Mode"
+msgstr "运行模式"
+
+msgid "How traffic is routed through proxies"
+msgstr "决定流量如何经由代理转发"
+
+msgid "Reload Config"
+msgstr "重载配置"
+
+msgid "Restart Kernel"
+msgstr "重启内核"
+
+msgid "Proxies"
+msgstr "代理"
+
+msgid "Proxy Providers"
+msgstr "代理提供商"
+
+msgid "Delay Check and Update All"
+msgstr "全部测速并更新"
+
+msgid "Connections"
+msgstr "连接"
+
+msgid "Common"
+msgstr "常规"
+
+msgid "General"
+msgstr "通用"
+
+msgid "Record Length"
+msgstr "记录长度"
+
+msgid "Update Period for Connections (ms)"
+msgstr "连接列表刷新间隔（毫秒）"
+
+msgid "Delay Test"
+msgstr "延迟测试"
+
+msgid "Test URL"
+msgstr "测试网址"
+
+msgid "Timeout (ms)"
+msgstr "超时（毫秒）"
+
+msgid "Refresh The Proxy Group"
+msgstr "刷新代理分组"
+
+msgid "Empty URL!"
+msgstr "地址为空！"
+
+msgid "Rule"
+msgstr "规则"
+
+msgid "Global"
+msgstr "全局"
+
+msgid "Direct"
+msgstr "直连"
+
+#, c-format
+msgid "%s/s - Max: %s/s"
+msgstr "%s/s - 峰值：%s/s"
+
+#, c-format
+msgid "Failed to select %s in %s"
+msgstr "未能选择代理 %s（分组 %s）"
+
+#, c-format
+msgid "Health check failed for %s"
+msgstr "%s 健康检查失败"
+
+msgid "Update Done"
+msgstr "更新完成"
+
+msgid "Failed to change TUN mode"
+msgstr "TUN 模式切换失败"
+
+msgid "Failed to switch running mode"
+msgstr "运行模式切换失败"
+
+#, c-format
+msgid "%u Proxies"
+msgstr "%u 个节点"
+
+#. subtitle
+#, c-format
+msgid "%s - %u Proxies"
+msgstr "%s - %u 个节点"
+
+#, c-format
+msgid " - Updated on %b. %-d"
+msgstr " - 更新于 %b %-d"
+

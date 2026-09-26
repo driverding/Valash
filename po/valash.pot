@@ -1,0 +1,305 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the valash package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: valash\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-09-26 14:21+0800\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=CHARSET\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: data/com.github.driverding.Valash.desktop.in:2
+msgid "valash"
+msgstr ""
+
+#: data/com.github.driverding.Valash.desktop.in:8
+msgid "GTK;"
+msgstr ""
+
+#: data/com.github.driverding.Valash.gschema.xml:6
+msgid "URL to Clash/Mihomo RESTful API"
+msgstr ""
+
+#: data/com.github.driverding.Valash.gschema.xml:10
+msgid "Secret to Access Clash/Mihomo RESTful API"
+msgstr ""
+
+#: data/com.github.driverding.Valash.gschema.xml:14
+msgid "URL for Testing Proxy Delay"
+msgstr ""
+
+#: data/com.github.driverding.Valash.gschema.xml:18
+msgid "Timeout for Proxy Health Check in ms"
+msgstr ""
+
+#: data/com.github.driverding.Valash.gschema.xml:22
+msgid "Length of the Record of Traffic"
+msgstr ""
+
+#: data/com.github.driverding.Valash.gschema.xml:26
+msgid ""
+"Time for Periodic Refresh of Connection Data in ms (Traffic is not effected)"
+msgstr ""
+
+#: data/com.github.driverding.Valash.metainfo.xml.in:7
+#: src/gtk/login-window.blp:5 src/gtk/main-window.blp:24
+msgid "Valash"
+msgstr ""
+
+#: data/com.github.driverding.Valash.metainfo.xml.in:8
+msgid "Keep the summary shorter, between 10 and 35 characters"
+msgstr ""
+
+#: data/com.github.driverding.Valash.metainfo.xml.in:10
+msgid "No description"
+msgstr ""
+
+#: data/com.github.driverding.Valash.metainfo.xml.in:14
+msgid "Developer name"
+msgstr ""
+
+#: data/com.github.driverding.Valash.metainfo.xml.in:52
+#: data/com.github.driverding.Valash.metainfo.xml.in:56
+msgid "A caption"
+msgstr ""
+
+#: src/application.vala:75
+msgid "translator-credits"
+msgstr ""
+
+#: src/clash.vala:40
+msgid "NULL response"
+msgstr ""
+
+#: src/clash.vala:43
+#, c-format
+msgid "Unrecognizable response: %s"
+msgstr ""
+
+#: src/connection-view.vala:44
+msgid "Host"
+msgstr ""
+
+#: src/connection-view.vala:47
+msgid "Chains"
+msgstr ""
+
+#: src/connection-view.vala:50
+msgid "Download"
+msgstr ""
+
+#: src/connection-view.vala:53
+msgid "Upload"
+msgstr ""
+
+#: src/gtk/login-window.blp:15
+msgid "Welcome"
+msgstr ""
+
+#: src/gtk/login-window.blp:16
+msgid "Connect to the Clash Kernel to Start"
+msgstr ""
+
+#: src/gtk/login-window.blp:32
+msgid "Address"
+msgstr ""
+
+#: src/gtk/login-window.blp:37
+msgid "Secret"
+msgstr ""
+
+#: src/gtk/login-window.blp:43
+msgid "Connect"
+msgstr ""
+
+#: src/gtk/main-window.blp:7
+msgid "Preferences"
+msgstr ""
+
+#: src/gtk/main-window.blp:12
+msgid "Relogin"
+msgstr ""
+
+#: src/gtk/main-window.blp:17
+msgid "About Valash"
+msgstr ""
+
+#: src/gtk/main-window.blp:38
+msgid "Refresh Current Page"
+msgstr ""
+
+#: src/gtk/main-window.blp:52
+msgid "Overview"
+msgstr ""
+
+#: src/gtk/main-window.blp:67
+msgid "Monitor"
+msgstr ""
+
+#: src/gtk/main-window.blp:102
+msgid "Download Speed"
+msgstr ""
+
+#: src/gtk/main-window.blp:134
+msgid "Upload Speed"
+msgstr ""
+
+#: src/gtk/main-window.blp:174
+msgid "Total Downloads"
+msgstr ""
+
+#: src/gtk/main-window.blp:196
+msgid "Total Uploads"
+msgstr ""
+
+#: src/gtk/main-window.blp:237
+msgid "Connections Count"
+msgstr ""
+
+#: src/gtk/main-window.blp:260
+msgid "Memory Usage"
+msgstr ""
+
+#: src/gtk/main-window.blp:280
+msgid "Settings"
+msgstr ""
+
+#: src/gtk/main-window.blp:283
+msgid "Enable TUN Mode"
+msgstr ""
+
+#: src/gtk/main-window.blp:284
+msgid "Emulate a virtual network interface"
+msgstr ""
+
+#: src/gtk/main-window.blp:289
+msgid "Running Mode"
+msgstr ""
+
+#: src/gtk/main-window.blp:290
+msgid "How traffic is routed through proxies"
+msgstr ""
+
+#: src/gtk/main-window.blp:300
+msgid "Reload Config"
+msgstr ""
+
+#: src/gtk/main-window.blp:306
+msgid "Restart Kernel"
+msgstr ""
+
+#: src/gtk/main-window.blp:317 src/gtk/main-window.blp:336
+msgid "Proxies"
+msgstr ""
+
+#: src/gtk/main-window.blp:347
+msgid "Proxy Providers"
+msgstr ""
+
+#: src/gtk/main-window.blp:359
+msgid "Delay Check and Update All"
+msgstr ""
+
+#: src/gtk/main-window.blp:369
+msgid "Connections"
+msgstr ""
+
+#: src/gtk/preferences-dialog.blp:6
+msgid "Common"
+msgstr ""
+
+#: src/gtk/preferences-dialog.blp:9
+msgid "General"
+msgstr ""
+
+#: src/gtk/preferences-dialog.blp:12
+msgid "Record Length"
+msgstr ""
+
+#: src/gtk/preferences-dialog.blp:21
+msgid "Update Period for Connections (ms)"
+msgstr ""
+
+#: src/gtk/preferences-dialog.blp:31
+msgid "Delay Test"
+msgstr ""
+
+#: src/gtk/preferences-dialog.blp:34
+msgid "Test URL"
+msgstr ""
+
+#: src/gtk/preferences-dialog.blp:39
+msgid "Timeout (ms)"
+msgstr ""
+
+#: src/gtk/proxy-group-row.blp:10
+msgid "Refresh The Proxy Group"
+msgstr ""
+
+#: src/login-window.vala:33
+msgid "Empty URL!"
+msgstr ""
+
+#: src/main-window.vala:101
+msgid "Rule"
+msgstr ""
+
+#: src/main-window.vala:101
+msgid "Global"
+msgstr ""
+
+#: src/main-window.vala:101
+msgid "Direct"
+msgstr ""
+
+#: src/main-window.vala:162 src/main-window.vala:164
+#, c-format
+msgid "%s/s - Max: %s/s"
+msgstr ""
+
+#: src/main-window.vala:291
+#, c-format
+msgid "Failed to select %s in %s"
+msgstr ""
+
+#: src/main-window.vala:344
+#, c-format
+msgid "Health check failed for %s"
+msgstr ""
+
+#: src/main-window.vala:360
+msgid "Update Done"
+msgstr ""
+
+#: src/main-window.vala:387
+msgid "Failed to change TUN mode"
+msgstr ""
+
+#: src/main-window.vala:424
+msgid "Failed to switch running mode"
+msgstr ""
+
+#: src/proxy-group-row.vala:88
+#, c-format
+msgid "%u Proxies"
+msgstr ""
+
+#. subtitle
+#: src/proxy-provider-row.vala:83
+#, c-format
+msgid "%s - %u Proxies"
+msgstr ""
+
+#: src/proxy-provider-row.vala:85
+#, c-format
+msgid " - Updated on %b. %-d"
+msgstr ""
