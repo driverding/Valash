@@ -27,11 +27,12 @@ public class Valash.ProxyGroupModel : Object {
             }
         }
 
-        /* Diff the proxies */
+        /* Diff the proxies. The map is keyed by member name, so the store has to
+         * be identified by name too: proxies resolved through /proxies carry no "id". */
         diff_list_store<string, ProxyData> (
             store,
             group_proxies,
-            (item) => ((ProxyModel) item).id,
+            (item) => ((ProxyModel) item).proxy_name,
             (json) => new ProxyModel.from_json (json),
             (item, json) => ((ProxyModel) item).sync_from_json (json)
         );

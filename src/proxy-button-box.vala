@@ -11,7 +11,7 @@ public class Valash.ProxyModel : Object {
     public bool selected     { get; set; }
 
     public ProxyModel.from_json (ProxyData data) {
-        Object (id: data.id,
+        Object (id: data.id ?? data.name,
                 proxy_name: data.name,
                 proxy_type: data.proxy_type);
         sync_from_json (data);

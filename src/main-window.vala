@@ -129,7 +129,6 @@ public class Valash.MainWindow: Adw.ApplicationWindow {
         restart_traffic_memory ();
 
         refresh_proxies.begin ();
-        refresh_proxy_providers.begin ();
         refresh_settings.begin ();
     }
 
@@ -212,6 +211,23 @@ public class Valash.MainWindow: Adw.ApplicationWindow {
         if (proxies == null) {
             return;
         }
+        var providers = yield clash.request_proxy_providers (null);
+
+        /* Since mihomo 1.19.28, /proxies no longer merges proxy-provider nodes,
+         * so group members listed in "all" must be resolved against the providers. */
+        var members = new Gee.HashMap<string, ProxyData> ();
+        foreach (var entry in proxies.entries) {
+            members[entry.key] = entry.value;
+        }
+        if (providers != null) {
+            foreach (var provider in providers.values) {
+                foreach (var proxy in provider.proxies.values) {
+                    if (proxy.name != null && !members.has_key (proxy.name)) {
+                        members[proxy.name] = proxy;
+                    }
+                }
+            }
+        }
 
         /* Filter to only proxy groups (entries with a non-null "all" field) */
         var groups = new Gee.HashMap<string, ProxyData> ();
@@ -225,19 +241,17 @@ public class Valash.MainWindow: Adw.ApplicationWindow {
             proxy_group_store,
             groups,
             (item) => ((ProxyGroupModel) item).proxy_group_name,
-            (json) => new ProxyGroupModel.from_json (json, proxies),
-            (item, json) => ((ProxyGroupModel) item).sync_from_json (json, proxies)
+            (json) => new ProxyGroupModel.from_json (json, members),
+            (item, json) => ((ProxyGroupModel) item).sync_from_json (json, members)
         );
 
-
+        if (providers != null) {
+            populate_proxy_providers (providers);
+        }
     }
 
-    private async void refresh_proxy_providers () {
-        var providers = yield clash.request_proxy_providers (null);
-        if (providers == null) {
-            return;
-        }
-
+    private void populate_proxy_providers (Gee.HashMap<string, ProxyProviderData> providers) {
+        /* Drop the pseudo providers mihomo generates per proxy group */
         var new_providers = new Gee.HashMap<string, ProxyProviderData>();
         foreach (var entry in providers.entries) {
             if (entry.value.vehicle_type != "Compatible") {
@@ -323,7 +337,6 @@ public class Valash.MainWindow: Adw.ApplicationWindow {
     private void on_refresh_button_clicked (Gtk.Button source) {
         restart_traffic_memory ();
         refresh_proxies.begin ();
-        refresh_proxy_providers.begin ();
         refresh_settings.begin ();
     }
 
@@ -445,7 +458,6 @@ public class Valash.MainWindow: Adw.ApplicationWindow {
                 if (remaining == 0) {
                     overlay.add_toast (new Adw.Toast (_("Update Done")));
                     refresh_proxies.begin ();
-                    refresh_proxy_providers.begin ();
                 }
             });
         }
